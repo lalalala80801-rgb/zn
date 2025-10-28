@@ -1,93 +1,186 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>智能交易所 · 曼谷 · 云同步（安全管理 v2.8）</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+<title>智能交易所 · 曼谷 · 云同步（门店终极 v2.7）</title>
 <style>
 :root{
-  --bg:#0a0f1a; --panel:#0f172a; --panel2:#0b1324; --text:#e5e7eb; --muted:#9fb3af;
-  --buy:#ef4444; --sell:#3b82f6; --grid:#1f2a3d; --radius:16px;
+  --bg:#0a0f1a; --panel:#0f172a; --panel2:#0b1324; --accent:#f59e0b;
+  --buy:#ef4444; --sell:#3b82f6; --text:#e5e7eb; --muted:#9ca3af; --grid:#1f2a3d;
+  --radius:18px; --shadow:0 12px 44px rgba(0,0,0,.45),0 0 0 1px rgba(20,184,166,.18) inset;
+  --fs-base:1;
 }
 *{box-sizing:border-box}
 html,body{height:100%}
-body{margin:0;background:radial-gradient(1200px 800px at 10% -10%,#0b1b30 10%,#0a0f1a 60%);color:var(--text);
-  font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"PingFang SC","Microsoft YaHei",sans-serif}
+body{
+  margin:0; background: radial-gradient(1200px 800px at 10% -10%, #0b1b30 10%, #0a0f1a 60%);
+  color:var(--text); font-family: Inter,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,"PingFang SC","Microsoft YaHei",sans-serif;
+  user-select:none;
+}
+[contenteditable]{-webkit-user-select:text; user-select:text; cursor:text;}
 .wrap{display:grid;grid-template-rows:auto 1fr auto;min-height:100%}
-header{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:12px 14px}
+header{display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:center;padding:12px 14px}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:48px;height:48px}
+.shopname .cn{font-size:clamp(20px,2.1vw,28px);font-weight:900;letter-spacing:.5px}
+.shopname .en{font-size:12px;opacity:.9}
+.hours{color:#a7f3d0;font-weight:800}
 .controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.btn{background:#111827;border:1px solid #2b3648;border-radius:10px;color:#e5e7eb;padding:7px 10px;font-weight:600;cursor:pointer}
+.btn{background:#111827;color:#e5e7eb;border:1px solid #2b3648;border-radius:10px;padding:7px 10px;font-weight:600;cursor:pointer}
 .btn:hover{background:#0f172a}
+.btn[aria-pressed="true"]{outline:2px solid #2563eb}
 .small{font-size:12px;opacity:.85}
-.clock{text-align:right}.clock .time{font-size:22px;font-weight:800}.clock .date{font-size:12px;opacity:.9}
-.board{background:linear-gradient(180deg,#0f172a,#0b1324);border:1px solid #233146;border-radius:var(--radius);overflow:hidden;margin:12px 14px}
-.thead,.row{display:grid;grid-template-columns:88px 1fr 220px 190px 190px;align-items:center}
-.thead{background:#0e1527;border-bottom:1px solid #233146;position:sticky;top:0;z-index:2}
-.cell{padding:10px 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:22px}
-.tb{max-height:72vh;overflow:hidden;position:relative}
-.page{overflow-y:auto;max-height:72vh}
-.num{min-width:8ch;text-align:center;padding:6px 8px;border-radius:8px}
-.buy{color:var(--buy);font-weight:900}.sell{color:var(--sell);font-weight:900}.denom{font-weight:900;min-width:7ch;text-align:center}
-.page-indicator{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);background:rgba(0,0,0,.25);border:1px solid #223049;border-radius:999px;padding:6px 10px;font-weight:800}
+.clock{text-align:right}.clock .time{font-size:22px;font-weight:800}.clock .date{font-size:12px;color:#9fb3c8}
 footer{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;padding:10px 14px;border-top:1px solid #233146;color:#9fb3c8}
 
-/* 登录入口：默认隐藏，?admin=1 才显示 */
-#loginFloat{position:fixed;right:16px;bottom:22px;z-index:1000;background:#0b1222d9;border:1px solid #2b3648;color:#e5e7eb;border-radius:999px;height:44px;padding:0 14px;display:none;gap:8px;justify-content:center;align-items:center;font-weight:700;box-shadow:0 8px 20px rgba(0,0,0,.35)}
+.board{background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid #233146;border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);margin:12px 14px}
+.thead,.row{display:grid;grid-template-columns:88px 1fr 220px 190px 190px;align-items:center}
+.thead{background:linear-gradient(180deg,#0e1527,#0b1120);border-bottom:1px solid #233146;position:sticky;top:0;z-index:2}
+.thead div{padding:12px 8px;font-weight:900;letter-spacing:.4px}
+.th-c,.th-b,.th-s,.th-d{font-size:24px}
+.tb{max-height:72vh;overflow:hidden;position:relative}
+.page{overflow-y:auto;overflow-x:hidden;max-height:72vh;scroll-behavior:smooth}
+.row{border-top:1px solid var(--grid);background:transparent}
+.cell{padding:10px 8px;font-size:calc(24px * var(--fs-base));white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.flag-left{font-size:30px; display:inline-flex; width:44px; justify-content:center; align-items:center}
+.code{display:flex;align-items:center;gap:8px;flex-wrap:nowrap;min-width:0}
+.code .tag{font-weight:900;opacity:.95}
+.code .cn{font-weight:900;color:#fca5a5}
+.code .th{opacity:.92;color:#a7f3d0;font-weight:800}
+.code .country{opacity:.8;color:#93c5fd;font-weight:800}
+.code .country::before{content:'· ';opacity:.8;color:#93c5fd}
+.numWrap{display:flex;justify-content:center;gap:8px;align-items:center}
+.num{min-width:8ch;text-align:center;font-variant-numeric:tabular-nums lining-nums;
+     padding:6px 8px;border-radius:8px;transition:background .2s ease, box-shadow .2s ease;white-space:nowrap}
+.num:focus{background:#0b1a2e;box-shadow:0 0 0 2px #294569 inset}
+.buy{color:#ef4444;font-weight:900}.sell{color:#3b82f6;font-weight:900}.denom{font-weight:900;min-width:7ch;text-align:center}
+.sub{opacity:.9}
+.group-head{background:linear-gradient(180deg,rgba(255,255,255,.015),rgba(255,255,255,0));}
+.group-tail{margin-bottom:2px;}
+.page-indicator{position:absolute;bottom:10px;color:#9fb3c8;font-weight:800;background:rgba(0,0,0,.25);padding:6px 10px;border-radius:999px;border:1px solid #223049;z-index:3}
+.pi-left{left:14px}
+.pi-center{left:50%;transform:translateX(-50%)}
+.pi-right{right:14px}
+.hide{display:none !important}
 
-/* 登录弹窗 */
-#loginDlg{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:1200}
-#loginPanel{background:#0b1222;border:1px solid #2b3648;border-radius:14px;width:min(420px,92vw);padding:16px}
-#loginPanel h3{margin:0 0 10px 0}
-.form-row{display:flex;gap:8px;align-items:center;margin:8px 0}
-.form-row label{width:80px;color:#9fb3c8}
-.form-row input,.form-row textarea,.form-row select{flex:1;background:#0b1222;color:#e5e7eb;border:1px solid #2b3648;border-radius:8px;padding:10px}
-.form-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+/* 右下角按钮 */
+#gearFloat{ position:fixed; right:16px; bottom:22px; z-index:999;
+  background:#111827cc; border:1px solid #2b3648; color:#e5e7eb;
+  border-radius:50%; width:52px; height:52px; display:flex; justify-content:center; align-items:center;
+  font-size:24px; font-weight:700; cursor:pointer; transition:all .25s ease; box-shadow:0 8px 20px rgba(0,0,0,.35); }
+#gearFloat:hover{ background:#1e293bcc; transform:scale(1.06); }
+.controls-hidden .page-indicator.pi-right{ right:90px; } /* 留出给齿轮按钮 */
 
-/* 商家信息卡片 */
-#shopCard{position:fixed;z-index:900;background:#0b1222cc;border:1px solid #2b3648;border-radius:14px;padding:12px;backdrop-filter:blur(4px)}
-#shopCard.small{width:200px} #shopCard.medium{width:260px} #shopCard.large{width:320px}
-#shopCard h4{margin:0 0 6px 0}
-#shopCard .row{display:block}
-.qrs{display:flex;gap:10px;margin-top:6px}
-.qrs figure{margin:0;text-align:center}
-.qrs img{width:90px;height:90px;border-radius:8px;border:1px solid #2b3648;background:#0b1222}
-.pos-lt{left:12px;top:12px} .pos-rt{right:12px;top:12px} .pos-lb{left:12px;bottom:12px} .pos-rb{right:12px;bottom:12px}
+/* 登录浮钮（未登录显示） */
+#loginFloat{ position:fixed; right:16px; bottom:22px; z-index:1000;
+  background:#0b1222d9; border:1px solid #2b3648; color:#e5e7eb;
+  border-radius:999px; height:44px; padding:0 14px; display:flex; gap:8px; justify-content:center; align-items:center;
+  font-size:16px; font-weight:700; cursor:pointer; box-shadow:0 8px 20px rgba(0,0,0,.35); }
 
-/* 响应式 */
+/* 900px 以下：更紧凑 */
 @media (max-width: 900px){
   .thead,.row{grid-template-columns:64px 1fr minmax(120px,24vw) minmax(100px,18vw) minmax(100px,18vw)}
-  .cell{font-size:20px}
+  .cell{font-size:calc(22px * var(--fs-base))}
+  .th-c,.th-b,.th-s,.th-d{font-size:20px}
+  header{grid-template-columns:1fr auto;gap:10px}
+  .brand{display:none}
+  .tb{max-height:70vh}
 }
+
+/* 430px 以下（手机） */
 @media (max-width: 430px){
   .thead,.row{grid-template-columns:52px 1fr minmax(98px,30vw) minmax(84px,1fr) minmax(84px,1fr)}
-  .cell{font-size:18px}
-  .page-indicator{left:50%;right:auto;transform:translateX(-50%)}
+  .cell{font-size:calc(18px * var(--fs-base))}
+  .th-c,.th-b,.th-s,.th-d{font-size:18px}
+  .flag-left{width:32px;font-size:22px}
+  .code{gap:6px}
+  .code .country, .code .th{display:none}
+  .num{min-width:auto;padding:5px 6px}
+  .page-indicator{left:50%; right:auto; transform:translateX(-50%);} /* 默认底部中间 */
+  .tb{max-height:68vh}
+  .btn{padding:6px 8px}
 }
 </style>
 </head>
 <body>
-<button id="loginFloat">🔐 登录</button>
 
-<div class="wrap">
+<!-- 未登录显示的小按钮 -->
+<button id="loginFloat" class="hide">🔐 登录</button>
+<!-- 已登录才显示的齿轮按钮 -->
+<div id="gearFloat" class="hide">⚙️</div>
+
+<div class="wrap" id="root">
   <header>
-    <div style="font-weight:900;font-size:20px">智能交易所 · 曼谷</div>
-    <div class="controls" id="controls" style="display:none">
-      <button class="btn" id="btn-cycle">▶️ 轮播播放</button>
-      <label class="btn">速度
-        <input id="speed" type="range" min="0" max="60" step="1" value="6" style="width:120px">
+    <div class="brand">
+      <svg class="logo" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" aria-label="品牌LOGO">
+        <defs><linearGradient id="g" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#0b3b78"/><stop offset="1" stop-color="#122a4a"/></linearGradient></defs>
+        <rect x="0" y="0" width="120" height="120" rx="24" fill="url(#g)"/>
+        <circle cx="34" cy="40" r="16" fill="#f59e0b"/><path d="M18 84 L46 62 L70 78 L102 48" stroke="#22c55e" stroke-width="6" fill="none" stroke-linecap="round"/>
+        <text x="60" y="48" text-anchor="middle" font-size="26" fill="#f59e0b" font-weight="800">¥</text>
+      </svg>
+      <div class="shopname">
+        <div class="cn" id="shopCN">智能交易所 · 曼谷</div>
+        <div class="en" id="shopEN">Intelligent Exchange · Bangkok</div>
+        <div class="hours" id="hoursText">营业时间：24 小时</div>
+      </div>
+    </div>
+
+    <div class="controls hide" id="controls">
+      <label class="btn" style="display:flex;gap:6px;align-items:center">
+        语言
+        <select id="lang" style="background:#0b1222;color:#e5e7eb;border:1px solid #2b3648;border-radius:8px;padding:6px">
+          <option value="zh" selected>中文</option>
+          <option value="th">ไทย</option>
+        </select>
+      </label>
+
+      <button class="btn" id="btn-cycle-toggle" title="播放/暂停轮播">▶️ 轮播播放</button>
+
+      <label class="btn" style="display:flex;gap:6px;align-items:center">
+        <span id="labSpeed">速度</span> <input id="speed" type="range" min="0" max="60" step="1" value="6" style="width:120px">
         <input id="speedNum" type="number" min="0" max="120" step="1" value="6" style="width:54px;background:#0b1222;color:#e5e7eb;border:1px solid #2b3648;border-radius:8px;padding:6px">
         <span id="speedLabel">秒</span>
       </label>
-      <label class="btn">每页国家 <input id="rppNum" type="number" min="2" max="8" step="1" value="3" style="width:46px;background:#0b1222;color:#e5e7eb;border:1px solid #2b3648;border-radius:8px;padding:6px"></label>
-      <button class="btn" id="btn-lock">🔒 已锁定</button>
 
-      <button class="btn" id="btn-shop-toggle">商家信息：关</button>
-      <button class="btn" id="btn-shop-edit">编辑商家信息</button>
+      <label class="btn" style="display:flex;gap:6px;align-items:center">
+        <span id="labPerPage">每页国家</span> <input id="rppNum" type="number" min="2" max="8" step="1" value="3" style="width:46px;background:#0b1222;color:#e5e7eb;border:1px solid #2b3648;border-radius:8px;padding:6px">
+      </label>
+
+      <label class="btn" style="display:flex;gap:6px;align-items:center">
+        <span id="labPi">页码位置</span>
+        <select id="piPos" style="background:#0b1222;color:#e5e7eb;border:1px solid #2b3648;border-radius:8px;padding:6px">
+          <option value="left">左下</option>
+          <option value="center" selected>中下</option>
+          <option value="right">右下</option>
+          <option value="hide">隐藏</option>
+        </select>
+      </label>
+
+      <button class="btn" id="btn-pause-edit" aria-pressed="true" title="编辑时自动暂停轮播">✍️ 编辑暂停：开</button>
+
+      <button class="btn" id="btn-add">➕ 添加国家</button>
+
+      <button class="btn" id="btn-full">全屏</button>
+      <button class="btn" id="btn-font-up">字 +</button>
+      <button class="btn" id="btn-font-down">字 −</button>
+      <button class="btn" id="btn-lock">🔓 编辑中</button>
+
+      <button class="btn" id="btn-export">导出</button>
+      <label class="btn" for="file" style="cursor:pointer">导入</label>
+      <input id="file" type="file" accept=".json" style="display:none" />
+      <button class="btn" id="btn-undo">撤销</button>
+      <button class="btn" id="btn-wake">🌙 常亮：关</button>
+
+      <button class="btn" id="btn-save">本机保存</button>
+      <button class="btn" id="btn-reset">恢复默认</button>
+      <button class="btn" id="btn-hide">隐藏设置</button>
 
       <button class="btn" id="btn-logout">退出</button>
       <span class="small" id="loginState"></span>
       <span class="small" id="cloudState">☁️ 云同步：开</span>
     </div>
+
     <div class="clock">
       <div class="time" id="time">--:--:--</div>
       <div class="date" id="date">—</div>
@@ -97,217 +190,242 @@ footer{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:cent
   <section class="board">
     <div class="thead">
       <div class="cell"></div>
-      <div class="cell">Currency 货币 · สกุลเงิน</div>
-      <div class="cell" style="text-align:center">Denomination 面额</div>
-      <div class="cell" style="text-align:center;color:#ef4444;font-weight:900">BUY 买入</div>
-      <div class="cell" style="text-align:center;color:#3b82f6;font-weight:900">SELL 卖出</div>
+      <div class="cell th-c" id="thCurrency">Currency 货币 · สกุลเงิน</div>
+      <div class="cell th-d" style="text-align:center" id="thDenom">Denomination 面额</div>
+      <div class="cell th-b" style="text-align:center" id="thBuy">BUY 买入</div>
+      <div class="cell th-s" style="text-align:center" id="thSell">SELL 卖出</div>
     </div>
     <div class="tb">
       <div class="page" id="page"></div>
-      <div class="page-indicator" id="pageIndicator">第 1 / 1 页</div>
+      <div class="page-indicator pi-center" id="pageIndicator">第 1 / 1 页</div>
     </div>
   </section>
 
   <footer>
-    <div>快捷键：F 全屏 · Space 播放/暂停 · ←/→ 换页</div>
+    <div id="ftHotkeys">快捷键：F 全屏 · E 锁定 · Space 播放/暂停 · ←/→ 换页 · H 显示/隐藏设置</div>
     <div>上次修改：<span id="updated">—</span></div>
-    <div style="text-align:right">汇率仅供参考，成交以柜台报价为准。</div>
+    <div id="ftNote" style="text-align:right">汇率仅供参考，成交以柜台报价为准。</div>
   </footer>
 </div>
 
-<!-- 商家信息卡片 -->
-<aside id="shopCard" class="medium pos-rb" style="display:none">
-  <h4 id="sc-name">智能交易所 · 曼谷</h4>
-  <div id="sc-addr" class="row"></div>
-  <div id="sc-phone" class="row"></div>
-  <div id="sc-note" class="row" style="opacity:.9"></div>
-  <div class="qrs">
-    <figure id="fig-wechat" style="display:none">
-      <img id="sc-wechat" alt="微信二维码"><figcaption style="font-size:12px;opacity:.85">微信</figcaption>
-    </figure>
-    <figure id="fig-line" style="display:none">
-      <img id="sc-line" alt="Line 二维码"><figcaption style="font-size:12px;opacity:.85">Line</figcaption>
-    </figure>
-  </div>
-</aside>
-
-<!-- 登录弹窗（禁用自动填充） -->
-<div id="loginDlg">
-  <div id="loginPanel">
-    <h3>员工登录</h3>
-    <form id="loginForm" autocomplete="off">
-      <div class="form-row">
-        <label for="acc">账号</label>
-        <input id="acc" name="acc_x" type="text" inputmode="latin" autocomplete="off" placeholder="例如 znjys">
-      </div>
-      <div class="form-row">
-        <label for="pwd">密码</label>
-        <input id="pwd" name="pwd_x" type="password" autocomplete="new-password" placeholder="例如 5201314">
-      </div>
-      <div class="form-actions">
-        <button type="button" class="btn" id="btnCancel">取消</button>
-        <button type="submit" class="btn">登录</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<!-- 商家信息编辑弹窗 -->
-<div id="shopDlg" style="position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:1200">
-  <div style="background:#0b1222;border:1px solid #2b3648;border-radius:14px;width:min(560px,94vw);padding:16px">
-    <h3 style="margin:0 0 10px 0">编辑商家信息</h3>
-    <div class="form-row"><label>显示</label>
-      <select id="f_on"><option value="true">开</option><option value="false">关</option></select>
-    </div>
-    <div class="form-row"><label>位置</label>
-      <select id="f_pos">
-        <option value="rb">右下</option><option value="lb">左下</option><option value="rt">右上</option><option value="lt">左上</option>
-      </select>
-    </div>
-    <div class="form-row"><label>大小</label>
-      <select id="f_size"><option value="small">小</option><option value="medium">中</option><option value="large">大</option></select>
-    </div>
-    <div class="form-row"><label>中文名</label><input id="f_name_cn" placeholder="智能交易所 · 曼谷"></div>
-    <div class="form-row"><label>英文名</label><input id="f_name_en" placeholder="Intelligent Exchange · Bangkok"></div>
-    <div class="form-row"><label>地址</label><textarea id="f_addr" rows="2" placeholder="地址"></textarea></div>
-    <div class="form-row"><label>电话</label><input id="f_phone" placeholder="电话"></div>
-    <div class="form-row"><label>备注</label><input id="f_note" placeholder="例如：营业时间 24 小时"></div>
-    <div class="form-row"><label>微信ID</label><input id="f_wechat_id" placeholder="可选"></div>
-    <div class="form-row"><label>Line ID</label><input id="f_line_id" placeholder="可选"></div>
-    <div class="form-row"><label>微信二维码</label><input id="f_wechat_qr" type="file" accept="image/*"></div>
-    <div class="form-row"><label>Line 二维码</label><input id="f_line_qr" type="file" accept="image/*"></div>
-    <div class="form-actions">
-      <button class="btn" id="btnShopCancel">取消</button>
-      <button class="btn" id="btnShopSave">保存</button>
-    </div>
-  </div>
-</div>
-
+<!-- Firebase CDN -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script>
-// ====== Firebase 配置 ======
 window.FB_CONFIG = {"apiKey": "AIzaSyD0dEK5P8CHdHPUBFCNLQRBlSRuCtv3GIs", "authDomain": "znjys-b4c98.firebaseapp.com", "databaseURL": "https://znjys-b4c98-default-rtdb.asia-southeast1.firebasedatabase.app", "projectId": "znjys-b4c98", "storageBucket": "znjys-b4c98.firebasestorage.app", "messagingSenderId": "762313114991", "appId": "1:762313114991:web:092c17431572a281f0549a", "measurementId": "G-W835L9T6DG"};
+</script>
 
-// ====== 管理员入口：?admin=1 才显示“登录”按钮 ======
-if (new URLSearchParams(location.search).get('admin') === '1') {
-  document.getElementById('loginFloat').style.display = 'flex';
-}
-
-// ====== 全局状态 ======
-const ROOM = 'bangkok'; // 固定
-let app=null, db=null, ref=null, auth=null;
-let CAN_WRITE=false, cloudOn=false;
-let locked=true, isPaused=false, applying=false;
-let pages=[], currentPage=0, cycleTimer=null;
-const STORE_KEY='exchange-cloud-v1-data-store';
-const S = (n)=> (+n).toFixed(2);
-const sanitize=(s)=>{ const n=parseFloat(String(s).replace(/[^0-9.\-]/g,'')); return isNaN(n)?null:Math.max(0,n); };
-
-// ====== 数据（汇率） ======
-let DATA = [
-  {flag:'🇺🇸',cn:'美元',th:'ดอลลาร์สหรัฐ',en:'USD',country:'United States',items:[
-    {denom:'$1',buy:32.10,sell:32.60},{denom:'$5–20',buy:32.40,sell:32.70},{denom:'$100',buy:32.70,sell:32.73}]},
-  {flag:'🇪🇺',cn:'欧元',th:'ยูโร',en:'EUR',country:'European Union',items:[
-    {denom:'€5–20',buy:37.60,sell:37.95},{denom:'€50',buy:37.80,sell:38.00},{denom:'€100',buy:37.91,sell:38.05}]},
-  {flag:'🇬🇧',cn:'英镑',th:'ปอนด์อังกฤษ',en:'GBP',country:'United Kingdom',items:[
-    {denom:'£5–20',buy:43.10,sell:43.50},{denom:'£50',buy:43.40,sell:43.60},{denom:'£100',buy:43.51,sell:43.65}]},
-  {flag:'🇨🇳',cn:'人民币',th:'หยวนจีน',en:'CNY',country:'China',items:[
-    {denom:'¥10–50',buy:4.55,sell:4.62},{denom:'¥100',buy:4.61,sell:4.65},{denom:'¥200+',buy:4.62,sell:4.66}]},
-  {flag:'🇸🇬',cn:'新元',th:'ดอลลาร์สิงคโปร์',en:'SGD',country:'Singapore',items:[
-    {denom:'$20–5',buy:27.00,sell:27.30},{denom:'$50–100',buy:27.30,sell:27.55},{denom:'$1000',buy:27.25,sell:27.40}]},
-  {flag:'🇦🇺',cn:'澳元',th:'ดอลลาร์ออสเตรเลีย',en:'AUD',country:'Australia',items:[
-    {denom:'$5–20',buy:20.90,sell:21.20},{denom:'$50–100',buy:21.13,sell:21.30},{denom:'$500+',buy:21.20,sell:21.35}]},
-  {flag:'🇭🇰',cn:'港币',th:'ดอลลาร์ฮ่องกง',en:'HKD',country:'Hong Kong',items:[
-    {denom:'$20–50',buy:4.18,sell:4.21},{denom:'$100–500',buy:4.21,sell:4.22},{denom:'$1000',buy:4.215,sell:4.225}]},
-  {flag:'🇲🇾',cn:'马币',th:'ริงกิตมาเลเซีย',en:'MYR',country:'Malaysia',items:[
-    {denom:'5–20',buy:7.60,sell:7.72},{denom:'50–100',buy:7.68,sell:7.76},{denom:'500+',buy:7.70,sell:7.78}]},
-  {flag:'🇰🇷',cn:'韩元',th:'วอนเกาหลี',en:'KRW',country:'South Korea',items:[
-    {denom:'₩1k–5k',buy:0.0235,sell:0.0245},{denom:'₩10k',buy:0.024,sell:0.025},{denom:'₩50k',buy:0.0242,sell:0.0252}]}
-];
-
-// ====== 商家信息（默认） ======
-let SHOP = {
-  on:false, pos:'rb', size:'medium',
-  nameCN:'智能交易所 · 曼谷', nameEN:'Intelligent Exchange · Bangkok',
-  addr:'', phone:'', note:'',
-  wechatId:'', lineId:'',
-  wechatQR:'', lineQR:''
+<script>
+// ===== 固定房间 & I18N =====
+const ROOM = 'bangkok';
+const I18N = {
+  zh:{cloud:'☁️ 云同步',cyclePlay:'▶️ 轮播播放',cyclePause:'⏸️ 轮播暂停',speed:'速度',sec:'秒',noCycle:'（不轮播）',perPage:'每页国家',pagePos:'页码位置',left:'左下',center:'中下',right:'右下',hide:'隐藏',pauseEditOn:'✍️ 编辑暂停：开',pauseEditOff:'✍️ 编辑暂停：关',addCountry:'➕ 添加国家',full:'全屏',fontUp:'字 +',fontDown:'字 −',lockEditing:'🔓 编辑中',locked:'🔒 已锁定',lockedReadOnly:'🔒 只读',export:'导出',import:'导入',undo:'撤销',awake:'🌙 常亮',save:'本机保存',reset:'恢复默认',hidePanel:'隐藏设置',login:'登录',logout:'退出',currencyHead:'Currency 货币 · สกุลเงิน',denomHead:'Denomination 面额',buyHead:'BUY 买入',sellHead:'SELL 卖出',footerHotkeys:'快捷键：F 全屏 · E 锁定 · Space 播放/暂停 · ←/→ 换页 · H 显示/隐藏设置',footerNote:'汇率仅供参考，成交以柜台报价为准。',promptAccount:'员工账号（例如 znjys）',promptPwd:'密码',added:'已添加：'},
+  th:{cloud:'☁️ ซิงก์คลาวด์',cyclePlay:'▶️ เล่นสลับหน้า',cyclePause:'⏸️ หยุดสลับหน้า',speed:'ความเร็ว',sec:'วินาที',noCycle:'(ไม่สลับ)',perPage:'ประเทศ/หน้า',pagePos:'ตำแหน่งเลขหน้า',left:'ซ้ายล่าง',center:'กลางล่าง',right:'ขวาล่าง',hide:'ซ่อน',pauseEditOn:'✍️ หยุดเมื่อแก้ไข: เปิด',pauseEditOff:'✍️ หยุดเมื่อแก้ไข: ปิด',addCountry:'➕ เพิ่มประเทศ',full:'เต็มหน้าจอ',fontUp:'ขยาย+',fontDown:'ย่อ−',lockEditing:'🔓 แก้ไขอยู่',locked:'🔒 ล็อกแล้ว',lockedReadOnly:'🔒 อ่านอย่างเดียว',export:'ส่งออก',import:'นำเข้า',undo:'ย้อนกลับ',awake:'🌙 เปิดหน้าจอค้าง',save:'บันทึก',reset:'คืนค่าเดิม',hidePanel:'ซ่อนแผง',login:'เข้าสู่ระบบ',logout:'ออกจากระบบ',currencyHead:'สกุลเงิน · Currency',denomHead:'มูลค่า',buyHead:'ซื้อ BUY',sellHead:'ขาย SELL',footerHotkeys:'ปุ่มลัด: F เต็มจอ · E ล็อก · Space เล่น/หยุด · ←/→ เปลี่ยนหน้า · H ซ่อน/แสดงแผง',footerNote:'อัตราแลกเปลี่ยนเป็นข้อมูลอ้างอิง ราคาเป็นไปตามหน้าเคาน์เตอร์',promptAccount:'บัญชีพนักงาน (เช่น znjys)',promptPwd:'รหัสผ่าน',added:'เพิ่มแล้ว: '}
 };
+const SETTINGS_KEY = 'exchange-board-settings-v27';
+const DEFAULT_SETTINGS = { lang:'zh', speed: 6, pauseOnEdit: true, hiddenControls: true, fontScale: 1, locked:true, keepAwake:false, rpp: 3, piPos:'center'};
+let SETTINGS = {...DEFAULT_SETTINGS};
+try{ SETTINGS = {...SETTINGS, ...(JSON.parse(localStorage.getItem(SETTINGS_KEY))||{})}; }catch{}
+function saveSettings(){ localStorage.setItem(SETTINGS_KEY, JSON.stringify(SETTINGS)); }
+function T(k){ const lang=SETTINGS.lang||'zh'; return (I18N[lang]&&I18N[lang][k])||k; }
 
-// ====== 渲染表格 ======
-const pageEl = document.getElementById('page'); const pi = document.getElementById('pageIndicator');
-function buildRows(){ const list=[]; DATA.forEach((g,gi)=>g.items.forEach((it,si)=>list.push({gi,si,showHead:si===0}))); return list; }
+// ===== UI refs =====
+const controls = document.getElementById('controls');
+const gear = document.getElementById('gearFloat');
+const loginFloat = document.getElementById('loginFloat');
+const pageEl = document.getElementById('page');
+const pageIndicator = document.getElementById('pageIndicator');
+
+// ===== 状态 =====
+let locked = true;
+let CAN_WRITE=false;
+let baseScale = SETTINGS.fontScale || 1;
+let currentPage = 0, pages = [], cycleTimer=null, isPausedManually=false, isEditing=false;
+let applyingRemote=false;
+
+// ===== 数据 =====
+const S = (n)=>(+n).toFixed(2);
+const sanitize=(s)=>{ const n=parseFloat(String(s).replace(/[^0-9.\-]/g,'')); return isNaN(n)?null:Math.max(0,n); };
+const STORE_KEY='exchange-cloud-v1-data-store';
+const DEFAULT = [
+  {flag:'🇺🇸', cn:'美元', th:'ดอลลาร์สหรัฐ', en:'USD', country:'United States',
+    items:[ {denom:'$1', buy:32.10, sell:32.60}, {denom:'$5–20', buy:32.40, sell:32.70}, {denom:'$100', buy:32.70, sell:32.73} ]},
+  {flag:'🇪🇺', cn:'欧元', th:'ยูโร', en:'EUR', country:'European Union',
+    items:[ {denom:'€5–20', buy:37.60, sell:37.95}, {denom:'€50', buy:37.80, sell:38.00}, {denom:'€100', buy:37.91, sell:38.05} ]},
+  {flag:'🇬🇧', cn:'英镑', th:'ปอนด์อังกฤษ', en:'GBP', country:'United Kingdom',
+    items:[ {denom:'£5–20', buy:43.10, sell:43.50}, {denom:'£50', buy:43.40, sell:43.60}, {denom:'£100', buy:43.51, sell:43.65} ]},
+  {flag:'🇨🇳', cn:'人民币', th:'หยวนจีน', en:'CNY', country:'China',
+    items:[ {denom:'¥10–50', buy:4.55, sell:4.62}, {denom:'¥100', buy:4.61, sell:4.65}, {denom:'¥200+', buy:4.62, sell:4.66} ]},
+  {flag:'🇸🇬', cn:'新元', th:'ดอลลาร์สิงคโปร์', en:'SGD', country:'Singapore',
+    items:[ {denom:'$20–5', buy:27.00, sell:27.30}, {denom:'$50–100', buy:27.30, sell:27.55}, {denom:'$1000', buy:27.25, sell:27.40} ]},
+  {flag:'🇦🇺', cn:'澳元', th:'ดอลลาร์ออสเตรเลีย', en:'AUD', country:'Australia',
+    items:[ {denom:'$5–20', buy:20.90, sell:21.20}, {denom:'$50–100', buy:21.13, sell:21.30}, {denom:'$500+', buy:21.20, sell:21.35} ]},
+  {flag:'🇨🇦', cn:'加元', th:'ดอลลาร์แคนาดา', en:'CAD', country:'Canada',
+    items:[ {denom:'$5–20', buy:23.10, sell:23.35}, {denom:'$50–100', buy:23.25, sell:23.45}, {denom:'$500+', buy:23.30, sell:23.55} ]},
+  {flag:'🇭🇰', cn:'港币', th:'ดอลลาร์ฮ่องกง', en:'HKD', country:'Hong Kong',
+    items:[ {denom:'$20–50', buy:4.18, sell:4.21}, {denom:'$100–500', buy:4.21, sell:4.22}, {denom:'$1000', buy:4.215, sell:4.225} ]},
+  {flag:'🇲🇾', cn:'马币', th:'ริงกิตมาเลเซีย', en:'MYR', country:'Malaysia',
+    items:[ {denom:'5–20', buy:7.60, sell:7.72}, {denom:'50–100', buy:7.68, sell:7.76}, {denom:'500+', buy:7.70, sell:7.78} ]},
+  {flag:'🇰🇷', cn:'韩元', th:'วอนเกาหลี', en:'KRW', country:'South Korea',
+    items:[ {denom:'₩1k–5k', buy:0.0235, sell:0.0245}, {denom:'₩10k', buy:0.024, sell:0.025}, {denom:'₩50k', buy:0.0242, sell:0.0252} ]}
+];
+let DATA = JSON.parse(JSON.stringify(DEFAULT));
+
+// ===== 渲染 =====
+function buildRows(){ const rows=[]; DATA.forEach((g,gi)=>g.items.forEach((it,si)=>rows.push({gi,si, showHead: si===0}))); return rows; }
 function setupEditable(scopeEl){
   scopeEl.querySelectorAll('[contenteditable]').forEach(el=>{
-    el.addEventListener('blur',()=>{
-      if(!CAN_WRITE) return;
-      const row = el.closest('.row'); const gi=+row.dataset.gi; const si=+row.dataset.si;
-      const k = el.dataset.key;
-      if(k==='buy'||k==='sell'){
-        const v = sanitize(el.textContent); if(v==null) return;
+    el.addEventListener('focus', ()=>{ isEditing = true; if(SETTINGS.pauseOnEdit) updateCycleState(); });
+    el.addEventListener('keydown', e=>{
+      if(e.key==='Enter'){ e.preventDefault(); el.blur(); }
+      if(e.key==='Escape'){
+        e.preventDefault();
+        const gi=+scopeEl.dataset.gi, si=+scopeEl.dataset.si, k=el.dataset.key;
+        if(k==='buy'||k==='sell'){ el.textContent = S(DATA[gi].items[si][k]); }
+        else if(k==='denom'){ el.textContent = DATA[gi].items[si].denom; }
+        else { el.textContent = DATA[gi][k] || ''; }
+        el.blur();
+      }
+    });
+    el.addEventListener('blur', ()=>{
+      if(!CAN_WRITE){ isEditing=false; return; } // 未登录只读
+      const gi=+scopeEl.dataset.gi, si=+scopeEl.dataset.si, k=el.dataset.key;
+      if(k==='buy' || k==='sell'){
+        const v = sanitize(el.textContent);
+        if(v==null){ el.textContent = S(DATA[gi].items[si][k]); return; }
         DATA[gi].items[si][k] = v; el.textContent = S(v); touch();
       }else if(k==='denom'){
-        DATA[gi].items[si].denom = (el.textContent||'').trim()||'—'; touch();
+        DATA[gi].items[si].denom = (el.textContent||'').trim() || '—'; touch();
       }else{
         DATA[gi][k] = (el.textContent||'').trim(); touch(); render();
       }
+      setTimeout(()=>{ isEditing = false; if(SETTINGS.pauseOnEdit) updateCycleState(); }, 120);
     });
   });
 }
 function drawPage(p){
   const rows = pages[p];
-  pageEl.innerHTML='';
-  let last=-1;
+  pageEl.innerHTML = '';
+  let lastGi=-1;
   rows.forEach((r, idx)=>{
-    const g=DATA[r.gi], it=g.items[r.si];
-    if(r.gi!==last){
-      const head=document.createElement('div'); head.className='row'; head.dataset.gi=r.gi; head.dataset.si=-1;
-      head.innerHTML=`
-        <div class="cell"><span>${g.flag}</span></div>
-        <div class="cell"><b ${!locked?'contenteditable':''} data-key="cn">${g.cn}</b> <span style="opacity:.9">${g.en}</span></div>
-        <div class="cell"></div><div class="cell"></div><div class="cell"></div>`;
-      setupEditable(head); pageEl.appendChild(head); last=r.gi;
+    const g = DATA[r.gi]; const it = g.items[r.si];
+    const head = (r.gi!==lastGi);
+    if(head){
+      const headRow = document.createElement('div');
+      headRow.className='row group-head';
+      headRow.dataset.gi=r.gi; headRow.dataset.si=-1;
+      headRow.innerHTML=`
+        <div class="cell"><span class="flag-left ${locked?'':'edit'}" ${locked?'':'contenteditable'} data-key="flag">${g.flag}</span></div>
+        <div class="cell code">
+          <span class="cn ${locked?'':'edit'}" ${locked?'':'contenteditable'} data-key="cn">${g.cn}</span>
+          <span class="tag ${locked?'':'edit'}" ${locked?'':'contenteditable'} data-key="en">${g.en}</span>
+          <span class="th ${locked?'':'edit'}" ${locked?'':'contenteditable'} data-key="th">${g.th}</span>
+          <span class="country ${locked?'':'edit'}" ${locked?'':'contenteditable'} data-key="country">${g.country}</span>
+        </div>
+        <div class="cell"></div><div class="cell"></div><div class="cell"></div>
+      `;
+      setupEditable(headRow);
+      pageEl.appendChild(headRow);
     }
-    const row=document.createElement('div'); row.className='row'; row.dataset.gi=r.gi; row.dataset.si=r.si;
+    lastGi=r.gi;
+    const row=document.createElement('div');
+    row.className='row sub'+(idx===rows.length-1?' group-tail':'');
+    row.dataset.gi=r.gi; row.dataset.si=r.si;
     row.innerHTML=`
       <div class="cell"></div>
-      <div class="cell"></div>
-      <div class="cell"><div class="num denom" ${!locked?'contenteditable':''} data-key="denom">${it.denom}</div></div>
-      <div class="cell"><div class="num buy" ${!locked?'contenteditable':''} data-key="buy">${S(it.buy)}</div></div>
-      <div class="cell"><div class="num sell" ${!locked?'contenteditable':''} data-key="sell">${S(it.sell)}</div></div>`;
-    setupEditable(row); pageEl.appendChild(row);
+      <div class="cell code"></div>
+      <div class="cell"><div class="numWrap"><div class="num denom ${locked?'':'edit'}" ${locked?'':'contenteditable'} data-key="denom">${it.denom}</div></div></div>
+      <div class="cell"><div class="numWrap"><div class="num buy ${locked?'':'edit'}" ${locked?'':'contenteditable'} data-key="buy">${S(it.buy)}</div></div></div>
+      <div class="cell"><div class="numWrap"><div class="num sell ${locked?'':'edit'}" ${locked?'':'contenteditable'} data-key="sell">${S(it.sell)}</div></div></div>
+    `;
+    setupEditable(row);
+    pageEl.appendChild(row);
   });
 }
 function render(){
-  const list=buildRows(); const RPP=(Number(document.getElementById('rppNum').value)||3)*3;
-  pages=[]; for(let i=0;i<list.length;i+=RPP) pages.push(list.slice(i,i+RPP));
+  const rows=buildRows();
+  const RPP=(SETTINGS.rpp||3)*3;
+  pages=[];
+  for(let i=0;i<rows.length;i+=RPP){ pages.push(rows.slice(i,i+RPP)); }
   if(pages.length===0) pages=[[]];
-  currentPage=Math.min(currentPage,pages.length-1);
+  currentPage=Math.min(currentPage, pages.length-1);
   drawPage(currentPage);
-  pi.textContent = `第 ${currentPage+1} / ${pages.length} 页`;
-  updateCycle();
+  pageIndicator.textContent = `第 ${currentPage+1} / ${pages.length} 页`;
+  setPiPos(SETTINGS.piPos||'center');
+  updateCycleState();
 }
 
-// ====== 轮播 ======
-function updateCycle(){
+// ===== 轮播 =====
+function updateCycleState(){
   if(cycleTimer) clearInterval(cycleTimer); cycleTimer=null;
-  const sec = Number(document.getElementById('speed').value)||6;
-  const canPlay = !isPaused && sec>0 && pages.length>1;
-  document.getElementById('btn-cycle').textContent = canPlay ? '⏸️ 轮播暂停' : '▶️ 轮播播放';
-  if(canPlay){ cycleTimer = setInterval(()=>{ currentPage=(currentPage+1)%pages.length; drawPage(currentPage); pi.textContent=`第 ${currentPage+1} / ${pages.length} 页`; }, sec*1000); }
+  const canPlay = (SETTINGS.speed>0) && (pages.length>1) && !isPausedManually && !(SETTINGS.pauseOnEdit && isEditing);
+  document.getElementById('btn-cycle-toggle').textContent = canPlay ? T('cyclePause') : T('cyclePlay');
+  if(canPlay){ cycleTimer = setInterval(()=>{ nextPage(); }, SETTINGS.speed*1000); }
+}
+function nextPage(){ if(pages.length<=1) return; currentPage=(currentPage+1)%pages.length; drawPage(currentPage); pageIndicator.textContent = `第 ${currentPage+1} / ${pages.length} 页`; }
+
+// ===== 控件 =====
+function setPiPos(pos){ const el = pageIndicator; el.classList.remove('pi-left','pi-center','pi-right'); if(pos==='left') el.classList.add('pi-left'); else if(pos==='right') el.classList.add('pi-right'); else if(pos==='center') el.classList.add('pi-center'); el.classList.toggle('hide', pos==='hide'); }
+function setSpeed(sec){
+  const s = Math.max(0, Math.min(120, Math.floor(Number(sec)||0)));
+  SETTINGS.speed=s; saveSettings();
+  document.getElementById('speed').value=s;
+  document.getElementById('speedNum').value=s;
+  document.getElementById('speedLabel').textContent=(s===0? T('noCycle'):T('sec'));
+  updateCycleState();
+}
+function setRpp(n){ const rpp=Math.max(2, Math.min(8, Math.floor(Number(n)||3))); SETTINGS.rpp=rpp; saveSettings(); document.getElementById('rppNum').value=rpp; render(); }
+const hintEl = document.getElementById('hint');
+function hint(s){ hintEl.textContent=s; setTimeout(()=>{ if(hintEl.textContent===s) hintEl.textContent=''; }, 3000); }
+
+document.getElementById('btn-full').onclick=()=>{ if(!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); };
+document.getElementById('btn-lock').onclick=()=>{ locked=!locked; SETTINGS.locked=locked; saveSettings(); document.getElementById('btn-lock').textContent=locked? T('locked'):T('lockEditing'); render(); };
+document.getElementById('btn-font-up').onclick=()=>{ baseScale=Math.min(2.4, (baseScale||1)+0.06); SETTINGS.fontScale=baseScale; saveSettings(); document.documentElement.style.setProperty('--fs-base', String(baseScale)); render(); };
+document.getElementById('btn-font-down').onclick=()=>{ baseScale=Math.max(0.6, (baseScale||1)-0.06); SETTINGS.fontScale=baseScale; saveSettings(); document.documentElement.style.setProperty('--fs-base', String(baseScale)); render(); };
+document.getElementById('btn-save').onclick=()=>{ localStorage.setItem(STORE_KEY, JSON.stringify(DATA)); alert('已保存到本机'); };
+document.getElementById('btn-reset').onclick=()=>{ if(confirm('确定恢复默认？将覆盖当前更改。')){ DATA = JSON.parse(JSON.stringify(DEFAULT)); touch(); render(); pushNow(); }};
+document.getElementById('btn-export').onclick=()=>{ const blob = new Blob([JSON.stringify(DATA,null,2)], {type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='汇率数据.json'; document.body.appendChild(a); a.click(); a.remove(); };
+document.getElementById('file').addEventListener('change', (e)=>{ const f=e.target.files?.[0]; if(!f) return; const reader=new FileReader(); reader.onload=()=>{ try{ DATA=JSON.parse(reader.result); touch(); render(); }catch{ alert('导入失败：文件格式不正确'); } }; reader.readAsText(f,'utf-8'); e.target.value=''; });
+document.getElementById('btn-undo').onclick=()=>{ alert('为稳定起见，本版不提供多步撤销'); };
+document.getElementById('btn-wake').onclick=()=>setWake(!SETTINGS.keepAwake);
+document.getElementById('btn-cycle-toggle').onclick=()=>{ isPausedManually=!isPausedManually; updateCycleState(); };
+document.getElementById('speed').addEventListener('input', e=>setSpeed(e.target.value));
+document.getElementById('speedNum').addEventListener('change', e=>setSpeed(e.target.value));
+document.getElementById('rppNum').addEventListener('change', e=>setRpp(e.target.value));
+document.getElementById('piPos').addEventListener('change', e=>{ SETTINGS.piPos=e.target.value; saveSettings(); setPiPos(SETTINGS.piPos); });
+const pauseBtn=document.getElementById('btn-pause-edit');
+pauseBtn.onclick=()=>{ SETTINGS.pauseOnEdit=!SETTINGS.pauseOnEdit; pauseBtn.setAttribute('aria-pressed', SETTINGS.pauseOnEdit?'true':'false'); pauseBtn.textContent = SETTINGS.pauseOnEdit? T('pauseEditOn'):T('pauseEditOff'); saveSettings(); updateCycleState(); };
+document.getElementById('btn-hide').onclick=()=>setControlsHidden(true);
+document.getElementById('lang').addEventListener('change', e=>{ SETTINGS.lang=e.target.value; saveSettings(); applyI18N(); });
+
+// 常亮
+let wakeLock=null;
+async function setWake(on){
+  SETTINGS.keepAwake = !!on; saveSettings();
+  const btn=document.getElementById('btn-wake');
+  if(!('wakeLock' in navigator)){ btn.textContent=T('awake')+'：不支持'; return; }
+  try{
+    if(SETTINGS.keepAwake){ wakeLock=await navigator.wakeLock.request('screen'); btn.textContent=T('awake')+'：开'; wakeLock.addEventListener('release',()=>{btn.textContent=T('awake')+'：关'; SETTINGS.keepAwake=false; saveSettings();}); }
+    else{ if(wakeLock){ wakeLock.release(); wakeLock=null; } btn.textContent=T('awake')+'：关'; }
+  }catch(e){ console.warn(e); btn.textContent=T('awake')+'：失败'; }
 }
 
-// ====== 控件绑定 ======
-document.getElementById('rppNum').addEventListener('change',render);
-document.getElementById('speed').addEventListener('input',e=>{ document.getElementById('speedNum').value=e.target.value; updateCycle(); });
-document.getElementById('speedNum').addEventListener('change',e=>{ document.getElementById('speed').value=e.target.value; updateCycle(); });
-document.getElementById('btn-cycle').onclick=()=>{ isPaused=!isPaused; updateCycle(); };
-document.getElementById('btn-lock').onclick=()=>{ locked=!locked; document.getElementById('btn-lock').textContent=locked?'🔒 已锁定':'🔓 编辑中'; render(); };
+// ===== 隐藏/显示设置 =====
+function setControlsHidden(hide){
+  SETTINGS.hiddenControls = !!hide; saveSettings();
+  controls.classList.toggle('hide', SETTINGS.hiddenControls);
+  gear.classList.toggle('hide', !SETTINGS.hiddenControls && CAN_WRITE);
+  document.body.classList.toggle('controls-hidden', SETTINGS.hiddenControls);
+}
+gear.onclick=()=>setControlsHidden(false);
 
-// ====== 本地 & 云同步 ======
-function touch(){ localStorage.setItem(STORE_KEY, JSON.stringify({data:DATA, shop:SHOP})); document.getElementById('updated').textContent=new Date().toLocaleString(); pushNow(); }
+// ===== 本地 & 云同步 =====
+function touch(){ localStorage.setItem(STORE_KEY, JSON.stringify(DATA)); document.getElementById('updated').textContent = new Date().toLocaleString(); if(!applyingRemote) pushNow(); }
+
+// ===== Firebase：默认云同步开启 =====
+let app=null, db=null, ref=null, auth=null;
+let cloudOn=false;
 
 function cloudEnable(on){
   if(on===cloudOn) return;
@@ -318,158 +436,110 @@ function cloudEnable(on){
       ref = db.ref('exchange/cloud/v1/'+ROOM);
       ref.on('value', snap=>{
         const v=snap.val(); if(!v) return;
-        applying=true;
-        if(v.data) DATA=v.data;
-        if(v.shop) SHOP=v.shop;
+        applyingRemote=true; if(v.data) DATA=v.data;
         document.getElementById('updated').textContent = new Date(v.updated||Date.now()).toLocaleString();
-        render(); renderShop();
-        applying=false;
+        render(); applyingRemote=false;
       });
-      cloudOn=true; document.getElementById('cloudState').textContent='☁️ 云同步：开'; pushNow();
+      cloudOn = true; document.getElementById('cloudState').textContent=T('cloud')+'：开';
+      pushNow();
     }catch(e){ console.error(e); alert('连接 Firebase 失败，请检查配置'); }
   }else{
-    if(ref) ref.off();
-    cloudOn=false; document.getElementById('cloudState').textContent='☁️ 云同步：关';
+    if(ref){ ref.off(); ref=null; }
+    cloudOn = false; document.getElementById('cloudState').textContent=T('cloud')+'：关';
   }
 }
-function pushNow(){ if(!cloudOn || !ref || !CAN_WRITE) return; ref.set({ data: DATA, shop: SHOP, updated: Date.now() }); }
+function pushNow(){ if(!cloudOn || !ref || !CAN_WRITE) return; ref.set({ data: DATA, updated: Date.now() }); }
 
-// ====== 登录（禁用自动填充） ======
-const loginFloat=document.getElementById('loginFloat');
-const loginDlg=document.getElementById('loginDlg');
-document.getElementById('btnCancel').onclick=()=> loginDlg.style.display='none';
-loginFloat.onclick=()=> loginDlg.style.display='flex';
-document.getElementById('btn-logout').onclick=async()=>{ try{ await firebase.auth().signOut(); alert('已退出'); location.reload(); }catch(e){} };
-document.getElementById('loginForm').addEventListener('submit', async (e)=>{
-  e.preventDefault();
-  try{
-    const acc = (document.getElementById('acc').value||'').trim() || 'znjys';
-    const pwd = document.getElementById('pwd').value;
-    const email = acc+'@znjys.local';
-    if(!auth) auth = firebase.auth();
-    const r = await auth.signInWithEmailAndPassword(email, pwd);
-    const uid = r.user.uid;
-    const s = await firebase.database().ref('roles/'+uid+'/write').once('value');
-    CAN_WRITE = (s.val()===true);
-    if(!CAN_WRITE){ alert('登录成功，但没有写入权限'); }
-    afterLogin(r.user);
-    loginDlg.style.display='none';
-  }catch(err){ alert('登录失败：'+(err?.message||'')); }
-});
-
-function afterLogin(u){
-  document.getElementById('loginState').textContent = u?.email||'';
-  document.getElementById('controls').style.display='flex';
-  loginFloat.style.display='none';
-  render(); renderShop();
+// ===== 登录（未登录隐藏设置；登录后显示设置） =====
+function updateLoginUI(u){
+  if(u){
+    document.getElementById('loginState').textContent = u.email || '';
+    CAN_WRITE=false; // 待查角色
+    firebase.database().ref('roles/'+u.uid+'/write').once('value').then(s=>{
+      CAN_WRITE = (s.val()===true);
+      locked = !CAN_WRITE ? true : (SETTINGS.locked!==undefined?SETTINGS.locked:false);
+      setControlsHidden(false); // 显示设置
+      loginFloat.classList.add('hide'); // 隐藏登录按钮
+      gear.classList.remove('hide'); // 显示齿轮
+      document.getElementById('btn-lock').textContent = locked? T('locked'):T('lockEditing');
+      render();
+    });
+  }else{
+    document.getElementById('loginState').textContent = '未登录（只读）';
+    CAN_WRITE=false; locked=true;
+    setControlsHidden(true); // 隐藏设置
+    loginFloat.classList.remove('hide'); // 显示登录按钮
+    gear.classList.add('hide'); // 隐藏齿轮
+    render();
+  }
 }
 
-// 初始化认证监听（用于刷新 UI）
 function initAuth(){
   auth = firebase.auth();
-  auth.onAuthStateChanged(u=>{
-    if(u){
-      document.getElementById('loginState').textContent = u.email||'';
-      document.getElementById('controls').style.display='flex';
-      loginFloat.style.display='none';
-      // 检查写权限
-      firebase.database().ref('roles/'+u.uid+'/write').once('value').then(s=>{ CAN_WRITE = (s.val()===true); });
-    }else{
-      CAN_WRITE=false; locked=true;
-      document.getElementById('controls').style.display='none';
-      if (new URLSearchParams(location.search).get('admin') === '1') loginFloat.style.display='flex';
-      render(); renderShop();
-    }
-  });
+  auth.onAuthStateChanged(updateLoginUI);
+}
+loginFloat.onclick=async()=>{
+  try{
+    if(!auth) initAuth();
+    const acc = prompt(T('promptAccount')+'：','znjys'); if(!acc) return;
+    const pwd = prompt(T('promptPwd')+'：','5201314'); if(!pwd) return;
+    const email = (acc.trim()||'znjys')+'@znjys.local';
+    await auth.signInWithEmailAndPassword(email, pwd);
+    alert('登录成功');
+  }catch(e){ alert('登录失败：'+(e?.message||'')); }
+};
+document.getElementById('btn-logout').onclick=async()=>{ try{ await auth.signOut(); alert('已退出'); }catch(e){} };
+
+// ===== I18N 应用 =====
+function applyI18N(){
+  document.getElementById('lang').value = SETTINGS.lang||'zh';
+  document.getElementById('btn-cycle-toggle').textContent = (cycleTimer? T('cyclePause'):T('cyclePlay'));
+  document.getElementById('labSpeed').textContent = T('speed');
+  document.getElementById('speedLabel').textContent = SETTINGS.speed===0 ? T('noCycle') : T('sec');
+  document.getElementById('labPerPage').textContent = T('perPage');
+  document.getElementById('labPi').textContent = T('pagePos');
+  pauseBtn.textContent = SETTINGS.pauseOnEdit? T('pauseEditOn'):T('pauseEditOff');
+  document.getElementById('btn-add').textContent = T('addCountry');
+  document.getElementById('btn-full').textContent = T('full');
+  document.getElementById('btn-font-up').textContent = T('fontUp');
+  document.getElementById('btn-font-down').textContent = T('fontDown');
+  document.getElementById('btn-lock').textContent = locked? T('locked'):T('lockEditing');
+  document.getElementById('btn-export').textContent = T('export');
+  document.querySelector('label[for="file"]').textContent = T('import');
+  document.getElementById('btn-undo').textContent = T('undo');
+  document.getElementById('btn-wake').textContent = T('awake')+'：'+(SETTINGS.keepAwake?'开':'关');
+  document.getElementById('btn-save').textContent = T('save');
+  document.getElementById('btn-reset').textContent = T('reset');
+  document.getElementById('btn-hide').textContent = T('hidePanel');
+  document.getElementById('btn-logout').textContent = T('logout');
+  document.getElementById('thCurrency').textContent = T('currencyHead');
+  document.getElementById('thDenom').textContent = T('denomHead');
+  document.getElementById('thBuy').textContent = T('buyHead');
+  document.getElementById('thSell').textContent = T('sellHead');
+  document.getElementById('ftHotkeys').textContent = T('footerHotkeys');
+  document.getElementById('ftNote').textContent = T('footerNote');
 }
 
-// ====== 商家信息：显示与编辑 ======
-const shopCard = document.getElementById('shopCard');
-function renderShop(){
-  shopCard.style.display = SHOP.on ? 'block' : 'none';
-  shopCard.classList.remove('small','medium','large','pos-lt','pos-rt','pos-lb','pos-rb');
-  shopCard.classList.add(SHOP.size||'medium', 'pos-'+(SHOP.pos||'rb'));
-  document.getElementById('sc-name').textContent = (SHOP.nameCN||'') + (SHOP.nameEN?(' · '+SHOP.nameEN):'');
-  document.getElementById('sc-addr').textContent = SHOP.addr||'';
-  document.getElementById('sc-phone').textContent = SHOP.phone||'';
-  document.getElementById('sc-note').textContent = SHOP.note||'';
-  if(SHOP.wechatQR){ document.getElementById('fig-wechat').style.display='block'; document.getElementById('sc-wechat').src=SHOP.wechatQR; }
-  else { document.getElementById('fig-wechat').style.display='none'; }
-  if(SHOP.lineQR){ document.getElementById('fig-line').style.display='block'; document.getElementById('sc-line').src=SHOP.lineQR; }
-  else { document.getElementById('fig-line').style.display='none'; }
-  document.getElementById('btn-shop-toggle').textContent = '商家信息：' + (SHOP.on?'开':'关');
-}
-
-// 打开编辑对话框
-const shopDlg = document.getElementById('shopDlg');
-document.getElementById('btn-shop-edit').onclick=()=>{
-  if(!CAN_WRITE){ alert('未登录或无写入权限'); return; }
-  // 填充表单
-  document.getElementById('f_on').value = SHOP.on?'true':'false';
-  document.getElementById('f_pos').value = SHOP.pos||'rb';
-  document.getElementById('f_size').value = SHOP.size||'medium';
-  document.getElementById('f_name_cn').value = SHOP.nameCN||'';
-  document.getElementById('f_name_en').value = SHOP.nameEN||'';
-  document.getElementById('f_addr').value = SHOP.addr||'';
-  document.getElementById('f_phone').value = SHOP.phone||'';
-  document.getElementById('f_note').value = SHOP.note||'';
-  document.getElementById('f_wechat_id').value = SHOP.wechatId||'';
-  document.getElementById('f_line_id').value = SHOP.lineId||'';
-  shopDlg.style.display='flex';
-};
-document.getElementById('btnShopCancel').onclick=()=> shopDlg.style.display='none';
-document.getElementById('btnShopSave').onclick=async()=>{
-  if(!CAN_WRITE){ alert('未登录或无写入权限'); return; }
-  SHOP.on = document.getElementById('f_on').value==='true';
-  SHOP.pos = document.getElementById('f_pos').value;
-  SHOP.size = document.getElementById('f_size').value;
-  SHOP.nameCN = document.getElementById('f_name_cn').value.trim();
-  SHOP.nameEN = document.getElementById('f_name_en').value.trim();
-  SHOP.addr = document.getElementById('f_addr').value.trim();
-  SHOP.phone = document.getElementById('f_phone').value.trim();
-  SHOP.note = document.getElementById('f_note').value.trim();
-  SHOP.wechatId = document.getElementById('f_wechat_id').value.trim();
-  SHOP.lineId = document.getElementById('f_line_id').value.trim();
-
-  // 读取二维码文件为 dataURL
-  const fWe = document.getElementById('f_wechat_qr').files[0];
-  const fLi = document.getElementById('f_line_qr').files[0];
-  const readAsDataURL = (file)=> new Promise((resolve)=>{ if(!file) return resolve(null); const r=new FileReader(); r.onload=()=>resolve(r.result); r.readAsDataURL(file); });
-  const [we,li] = await Promise.all([readAsDataURL(fWe), readAsDataURL(fLi)]);
-  if(we) SHOP.wechatQR = we;
-  if(li) SHOP.lineQR = li;
-
-  touch(); renderShop();
-  alert('已保存');
-  shopDlg.style.display='none';
-};
-
-document.getElementById('btn-shop-toggle').onclick=()=>{
-  if(!CAN_WRITE){ alert('未登录或无写入权限'); return; }
-  SHOP.on = !SHOP.on; renderShop(); touch();
-};
-
-// ====== 初始化 ======
+// ===== Init =====
 (function init(){
-  // 本地缓存
-  const saved = localStorage.getItem(STORE_KEY);
-  if(saved){ try{ const x=JSON.parse(saved); if(x.data) DATA=x.data; if(x.shop) SHOP=x.shop; }catch(e){} }
-  // UI
-  render(); renderShop();
-  // 云同步默认开启
+  // 本地数据
+  const saved = localStorage.getItem(STORE_KEY); if(saved){ try{ DATA = JSON.parse(saved) || DATA; }catch{} }
+  // 设置
+  document.documentElement.style.setProperty('--fs-base', String(baseScale||1));
+  setSpeed(SETTINGS.speed||6);
+  setRpp(SETTINGS.rpp||3);
+  setPiPos(SETTINGS.piPos||'center');
+  applyI18N();
+  render();
+  document.getElementById('updated').textContent = new Date().toLocaleString();
+  // 默认云同步开启
   cloudEnable(true);
-  // 认证监听
+  // 初始化认证监听（用于自动隐藏/显示设置面板）
   initAuth();
-  // 时钟
-  (function tick(){ const n=new Date(); document.getElementById('time').textContent=n.toLocaleTimeString(); document.getElementById('date').textContent=n.toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric',weekday:'long'}); setTimeout(tick,1000); })();
-  // 键盘
-  document.addEventListener('keydown',e=>{
-    if(e.key===' '){ e.preventDefault(); isPaused=!isPaused; updateCycle(); }
-    if(e.key==='F'||e.key==='f'){ if(!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); }
-    if(e.key==='ArrowRight'){ currentPage=(currentPage+1)%pages.length; drawPage(currentPage); pi.textContent=`第 ${currentPage+1} / ${pages.length} 页`; }
-    if(e.key==='ArrowLeft'){ currentPage=(currentPage-1+pages.length)%pages.length; drawPage(currentPage); pi.textContent=`第 ${currentPage+1} / ${pages.length} 页`; }
-  });
 })();
+
+// 时钟
+(function tick(){ const n=new Date(); document.getElementById('time').textContent=n.toLocaleTimeString(); document.getElementById('date').textContent=n.toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric',weekday:'long'}); setTimeout(tick,1000); })();
 </script>
 </body>
 </html>
