@@ -1,44 +1,67 @@
-
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
-<title>智能交易所 · 云同步（v2.9 移动友好版）</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>智能交易所 · 曼谷 · 云同步（安全管理 v2.8）</title>
 <style>
-:root{--bg:#0a0f1a;--panel:#0f172a;--panel2:#0b1324;--text:#e5e7eb;--muted:#9fb3c8;--buy:#ef4444;--sell:#3b82f6;--grid:#1f2a3d}
-*{box-sizing:border-box}html,body{height:100%}body{margin:0;background:radial-gradient(1200px 800px at 10% -10%,#0b1b30 10%,#0a0f1a 60%);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"PingFang SC","Microsoft YaHei",sans-serif}
+:root{
+  --bg:#0a0f1a; --panel:#0f172a; --panel2:#0b1324; --text:#e5e7eb; --muted:#9fb3af;
+  --buy:#ef4444; --sell:#3b82f6; --grid:#1f2a3d; --radius:16px;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:radial-gradient(1200px 800px at 10% -10%,#0b1b30 10%,#0a0f1a 60%);color:var(--text);
+  font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"PingFang SC","Microsoft YaHei",sans-serif}
 .wrap{display:grid;grid-template-rows:auto 1fr auto;min-height:100%}
-header{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:10px 12px}
+header{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:12px 14px}
 .controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.btn{background:#111827;border:1px solid #2b3648;border-radius:10px;color:#e5e7eb;padding:6px 10px;font-weight:600;cursor:pointer}
-.board{background:linear-gradient(180deg,#0f172a,#0b1324);border:1px solid #233146;border-radius:14px;margin:10px 12px;box-shadow:0 10px 28px rgba(0,0,0,.35);overflow:hidden}
+.btn{background:#111827;border:1px solid #2b3648;border-radius:10px;color:#e5e7eb;padding:7px 10px;font-weight:600;cursor:pointer}
+.btn:hover{background:#0f172a}
+.small{font-size:12px;opacity:.85}
+.clock{text-align:right}.clock .time{font-size:22px;font-weight:800}.clock .date{font-size:12px;opacity:.9}
+.board{background:linear-gradient(180deg,#0f172a,#0b1324);border:1px solid #233146;border-radius:var(--radius);overflow:hidden;margin:12px 14px}
 .thead,.row{display:grid;grid-template-columns:88px 1fr 220px 190px 190px;align-items:center}
-.thead{background:#0e1527;border-bottom:1px solid #233146}
+.thead{background:#0e1527;border-bottom:1px solid #233146;position:sticky;top:0;z-index:2}
 .cell{padding:10px 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:22px}
 .tb{max-height:72vh;overflow:hidden;position:relative}
-.page-indicator{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);background:rgba(0,0,0,.25);border:1px solid #223049;border-radius:999px;padding:6px 10px;font-weight:800}
+.page{overflow-y:auto;max-height:72vh}
 .num{min-width:8ch;text-align:center;padding:6px 8px;border-radius:8px}
 .buy{color:var(--buy);font-weight:900}.sell{color:var(--sell);font-weight:900}.denom{font-weight:900;min-width:7ch;text-align:center}
-footer{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;padding:10px 12px;border-top:1px solid #233146;color:var(--muted)}
+.page-indicator{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);background:rgba(0,0,0,.25);border:1px solid #223049;border-radius:999px;padding:6px 10px;font-weight:800}
+footer{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;padding:10px 14px;border-top:1px solid #233146;color:#9fb3c8}
+
+/* 登录入口：默认隐藏，?admin=1 才显示 */
 #loginFloat{position:fixed;right:16px;bottom:22px;z-index:1000;background:#0b1222d9;border:1px solid #2b3648;color:#e5e7eb;border-radius:999px;height:44px;padding:0 14px;display:none;gap:8px;justify-content:center;align-items:center;font-weight:700;box-shadow:0 8px 20px rgba(0,0,0,.35)}
+
+/* 登录弹窗 */
 #loginDlg{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:1200}
 #loginPanel{background:#0b1222;border:1px solid #2b3648;border-radius:14px;width:min(420px,92vw);padding:16px}
-#loginPanel h3{margin:0 0 10px 0}.form-row{display:flex;gap:8px;align-items:center;margin:8px 0}.form-row label{width:80px;color:#9fb3c8}.form-row input{flex:1;background:#0b1222;color:#e5e7eb;border:1px solid #2b3648;border-radius:8px;padding:10px}.form-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+#loginPanel h3{margin:0 0 10px 0}
+.form-row{display:flex;gap:8px;align-items:center;margin:8px 0}
+.form-row label{width:80px;color:#9fb3c8}
+.form-row input,.form-row textarea,.form-row select{flex:1;background:#0b1222;color:#e5e7eb;border:1px solid #2b3648;border-radius:8px;padding:10px}
+.form-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
 
-/* ====== 移动紧凑卡片视图（portrait） ====== */
-#mobileCards{display:none;padding:10px 12px}
-.card{background:linear-gradient(180deg,#0f172a,#0b1324);border:1px solid #233146;border-radius:14px;box-shadow:0 10px 24px rgba(0,0,0,.35);padding:12px 12px;margin-bottom:12px}
-.ch{display:flex;align-items:center;gap:10px;margin-bottom:8px}
-.flag{font-size:24px}.code{font-weight:800}.name{opacity:.9}
-.table3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
-.cell3{background:#0b1326;border:1px solid #24324a;border-radius:10px;padding:10px 8px;text-align:center}
-.denom3{font-weight:800}.buy3{color:var(--buy);font-weight:900;font-size:18px}.sell3{color:var(--sell);font-weight:900;font-size:18px}
-.mpi{position:sticky;bottom:6px;left:0;right:0;margin-top:8px;text-align:center;color:#9fb3c8}
-/* portrait 自动切换到卡片模式 */
-@media (max-width: 480px) and (orientation: portrait){
-  #desktopTable{display:none}
-  #mobileCards{display:block}
+/* 商家信息卡片 */
+#shopCard{position:fixed;z-index:900;background:#0b1222cc;border:1px solid #2b3648;border-radius:14px;padding:12px;backdrop-filter:blur(4px)}
+#shopCard.small{width:200px} #shopCard.medium{width:260px} #shopCard.large{width:320px}
+#shopCard h4{margin:0 0 6px 0}
+#shopCard .row{display:block}
+.qrs{display:flex;gap:10px;margin-top:6px}
+.qrs figure{margin:0;text-align:center}
+.qrs img{width:90px;height:90px;border-radius:8px;border:1px solid #2b3648;background:#0b1222}
+.pos-lt{left:12px;top:12px} .pos-rt{right:12px;top:12px} .pos-lb{left:12px;bottom:12px} .pos-rb{right:12px;bottom:12px}
+
+/* 响应式 */
+@media (max-width: 900px){
+  .thead,.row{grid-template-columns:64px 1fr minmax(120px,24vw) minmax(100px,18vw) minmax(100px,18vw)}
+  .cell{font-size:20px}
+}
+@media (max-width: 430px){
+  .thead,.row{grid-template-columns:52px 1fr minmax(98px,30vw) minmax(84px,1fr) minmax(84px,1fr)}
+  .cell{font-size:18px}
+  .page-indicator{left:50%;right:auto;transform:translateX(-50%)}
 }
 </style>
 </head>
@@ -57,17 +80,21 @@ footer{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:cent
       </label>
       <label class="btn">每页国家 <input id="rppNum" type="number" min="2" max="8" step="1" value="3" style="width:46px;background:#0b1222;color:#e5e7eb;border:1px solid #2b3648;border-radius:8px;padding:6px"></label>
       <button class="btn" id="btn-lock">🔒 已锁定</button>
+
+      <button class="btn" id="btn-shop-toggle">商家信息：关</button>
+      <button class="btn" id="btn-shop-edit">编辑商家信息</button>
+
       <button class="btn" id="btn-logout">退出</button>
       <span class="small" id="loginState"></span>
       <span class="small" id="cloudState">☁️ 云同步：开</span>
     </div>
-    <div style="text-align:right">
-      <div id="time" style="font-weight:800">--:--:--</div>
-      <div id="date" style="font-size:12px;opacity:.8">—</div>
+    <div class="clock">
+      <div class="time" id="time">--:--:--</div>
+      <div class="date" id="date">—</div>
     </div>
   </header>
 
-  <section id="desktopTable" class="board">
+  <section class="board">
     <div class="thead">
       <div class="cell"></div>
       <div class="cell">Currency 货币 · สกุลเงิน</div>
@@ -76,13 +103,10 @@ footer{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:cent
       <div class="cell" style="text-align:center;color:#3b82f6;font-weight:900">SELL 卖出</div>
     </div>
     <div class="tb">
-      <div id="page"></div>
+      <div class="page" id="page"></div>
       <div class="page-indicator" id="pageIndicator">第 1 / 1 页</div>
     </div>
   </section>
-
-  <!-- 移动紧凑卡片 -->
-  <section id="mobileCards"></section>
 
   <footer>
     <div>快捷键：F 全屏 · Space 播放/暂停 · ←/→ 换页</div>
@@ -91,13 +115,35 @@ footer{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:cent
   </footer>
 </div>
 
-<!-- 登录弹窗 -->
+<!-- 商家信息卡片 -->
+<aside id="shopCard" class="medium pos-rb" style="display:none">
+  <h4 id="sc-name">智能交易所 · 曼谷</h4>
+  <div id="sc-addr" class="row"></div>
+  <div id="sc-phone" class="row"></div>
+  <div id="sc-note" class="row" style="opacity:.9"></div>
+  <div class="qrs">
+    <figure id="fig-wechat" style="display:none">
+      <img id="sc-wechat" alt="微信二维码"><figcaption style="font-size:12px;opacity:.85">微信</figcaption>
+    </figure>
+    <figure id="fig-line" style="display:none">
+      <img id="sc-line" alt="Line 二维码"><figcaption style="font-size:12px;opacity:.85">Line</figcaption>
+    </figure>
+  </div>
+</aside>
+
+<!-- 登录弹窗（禁用自动填充） -->
 <div id="loginDlg">
   <div id="loginPanel">
     <h3>员工登录</h3>
     <form id="loginForm" autocomplete="off">
-      <div class="form-row"><label for="acc">账号</label><input id="acc" name="acc_x" type="text" inputmode="latin" autocomplete="off" placeholder="例如 znjys"></div>
-      <div class="form-row"><label for="pwd">密码</label><input id="pwd" name="pwd_x" type="password" autocomplete="new-password" placeholder="例如 5201314"></div>
+      <div class="form-row">
+        <label for="acc">账号</label>
+        <input id="acc" name="acc_x" type="text" inputmode="latin" autocomplete="off" placeholder="例如 znjys">
+      </div>
+      <div class="form-row">
+        <label for="pwd">密码</label>
+        <input id="pwd" name="pwd_x" type="password" autocomplete="new-password" placeholder="例如 5201314">
+      </div>
       <div class="form-actions">
         <button type="button" class="btn" id="btnCancel">取消</button>
         <button type="submit" class="btn">登录</button>
@@ -106,151 +152,322 @@ footer{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:cent
   </div>
 </div>
 
+<!-- 商家信息编辑弹窗 -->
+<div id="shopDlg" style="position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:1200">
+  <div style="background:#0b1222;border:1px solid #2b3648;border-radius:14px;width:min(560px,94vw);padding:16px">
+    <h3 style="margin:0 0 10px 0">编辑商家信息</h3>
+    <div class="form-row"><label>显示</label>
+      <select id="f_on"><option value="true">开</option><option value="false">关</option></select>
+    </div>
+    <div class="form-row"><label>位置</label>
+      <select id="f_pos">
+        <option value="rb">右下</option><option value="lb">左下</option><option value="rt">右上</option><option value="lt">左上</option>
+      </select>
+    </div>
+    <div class="form-row"><label>大小</label>
+      <select id="f_size"><option value="small">小</option><option value="medium">中</option><option value="large">大</option></select>
+    </div>
+    <div class="form-row"><label>中文名</label><input id="f_name_cn" placeholder="智能交易所 · 曼谷"></div>
+    <div class="form-row"><label>英文名</label><input id="f_name_en" placeholder="Intelligent Exchange · Bangkok"></div>
+    <div class="form-row"><label>地址</label><textarea id="f_addr" rows="2" placeholder="地址"></textarea></div>
+    <div class="form-row"><label>电话</label><input id="f_phone" placeholder="电话"></div>
+    <div class="form-row"><label>备注</label><input id="f_note" placeholder="例如：营业时间 24 小时"></div>
+    <div class="form-row"><label>微信ID</label><input id="f_wechat_id" placeholder="可选"></div>
+    <div class="form-row"><label>Line ID</label><input id="f_line_id" placeholder="可选"></div>
+    <div class="form-row"><label>微信二维码</label><input id="f_wechat_qr" type="file" accept="image/*"></div>
+    <div class="form-row"><label>Line 二维码</label><input id="f_line_qr" type="file" accept="image/*"></div>
+    <div class="form-actions">
+      <button class="btn" id="btnShopCancel">取消</button>
+      <button class="btn" id="btnShopSave">保存</button>
+    </div>
+  </div>
+</div>
+
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script>
+// ====== Firebase 配置 ======
 window.FB_CONFIG = {"apiKey": "AIzaSyD0dEK5P8CHdHPUBFCNLQRBlSRuCtv3GIs", "authDomain": "znjys-b4c98.firebaseapp.com", "databaseURL": "https://znjys-b4c98-default-rtdb.asia-southeast1.firebasedatabase.app", "projectId": "znjys-b4c98", "storageBucket": "znjys-b4c98.firebasestorage.app", "messagingSenderId": "762313114991", "appId": "1:762313114991:web:092c17431572a281f0549a", "measurementId": "G-W835L9T6DG"};
-const ROOM='bangkok';
-// 管理入口：只有 ?admin=1 才显示登录按钮
-if (new URLSearchParams(location.search).get('admin')==='1') document.getElementById('loginFloat').style.display='flex';
 
+// ====== 管理员入口：?admin=1 才显示“登录”按钮 ======
+if (new URLSearchParams(location.search).get('admin') === '1') {
+  document.getElementById('loginFloat').style.display = 'flex';
+}
+
+// ====== 全局状态 ======
+const ROOM = 'bangkok'; // 固定
 let app=null, db=null, ref=null, auth=null;
 let CAN_WRITE=false, cloudOn=false;
 let locked=true, isPaused=false, applying=false;
 let pages=[], currentPage=0, cycleTimer=null;
 const STORE_KEY='exchange-cloud-v1-data-store';
-const S=(n)=> (+n).toFixed(2);
-const sanitize=(s)=>{const n=parseFloat(String(s).replace(/[^0-9.\-]/g,'')); return isNaN(n)?null:Math.max(0,n);};
+const S = (n)=> (+n).toFixed(2);
+const sanitize=(s)=>{ const n=parseFloat(String(s).replace(/[^0-9.\-]/g,'')); return isNaN(n)?null:Math.max(0,n); };
 
-// 数据
-let DATA=[
-  {flag:'🇺🇸',cn:'美元',en:'USD',items:[{denom:'$1',buy:32.10,sell:32.60},{denom:'$5–20',buy:32.40,sell:32.70},{denom:'$100',buy:32.70,sell:32.73}]},
-  {flag:'🇪🇺',cn:'欧元',en:'EUR',items:[{denom:'€5–20',buy:37.60,sell:37.95},{denom:'€50',buy:37.80,sell:38.00},{denom:'€100',buy:37.91,sell:38.05}]},
-  {flag:'🇬🇧',cn:'英镑',en:'GBP',items:[{denom:'£5–20',buy:43.10,sell:43.50},{denom:'£50',buy:43.40,sell:43.60},{denom:'£100',buy:43.51,sell:43.65}]},
-  {flag:'🇨🇳',cn:'人民币',en:'CNY',items:[{denom:'¥10–50',buy:4.55,sell:4.62},{denom:'¥100',buy:4.61,sell:4.65},{denom:'¥200+',buy:4.62,sell:4.66}]},
-  {flag:'🇸🇬',cn:'新元',en:'SGD',items:[{denom:'$20–5',buy:27.00,sell:27.30},{denom:'$50–100',buy:27.30,sell:27.55},{denom:'$1000',buy:27.25,sell:27.40}]},
-  {flag:'🇦🇺',cn:'澳元',en:'AUD',items:[{denom:'$5–20',buy:20.90,sell:21.20},{denom:'$50–100',buy:21.13,sell:21.30},{denom:'$500+',buy:21.20,sell:21.35}]},
-  {flag:'🇭🇰',cn:'港币',en:'HKD',items:[{denom:'$20–50',buy:4.18,sell:4.21},{denom:'$100–500',buy:4.21,sell:4.22},{denom:'$1000',buy:4.215,sell:4.225}]},
-  {flag:'🇲🇾',cn:'马币',en:'MYR',items:[{denom:'5–20',buy:7.60,sell:7.72},{denom:'50–100',buy:7.68,sell:7.76},{denom:'500+',buy:7.70,sell:7.78}]},
-  {flag:'🇰🇷',cn:'韩元',en:'KRW',items:[{denom:'₩1k–5k',buy:0.0235,sell:0.0245},{denom:'₩10k',buy:0.024,sell:0.025},{denom:'₩50k',buy:0.0242,sell:0.0252}]}
+// ====== 数据（汇率） ======
+let DATA = [
+  {flag:'🇺🇸',cn:'美元',th:'ดอลลาร์สหรัฐ',en:'USD',country:'United States',items:[
+    {denom:'$1',buy:32.10,sell:32.60},{denom:'$5–20',buy:32.40,sell:32.70},{denom:'$100',buy:32.70,sell:32.73}]},
+  {flag:'🇪🇺',cn:'欧元',th:'ยูโร',en:'EUR',country:'European Union',items:[
+    {denom:'€5–20',buy:37.60,sell:37.95},{denom:'€50',buy:37.80,sell:38.00},{denom:'€100',buy:37.91,sell:38.05}]},
+  {flag:'🇬🇧',cn:'英镑',th:'ปอนด์อังกฤษ',en:'GBP',country:'United Kingdom',items:[
+    {denom:'£5–20',buy:43.10,sell:43.50},{denom:'£50',buy:43.40,sell:43.60},{denom:'£100',buy:43.51,sell:43.65}]},
+  {flag:'🇨🇳',cn:'人民币',th:'หยวนจีน',en:'CNY',country:'China',items:[
+    {denom:'¥10–50',buy:4.55,sell:4.62},{denom:'¥100',buy:4.61,sell:4.65},{denom:'¥200+',buy:4.62,sell:4.66}]},
+  {flag:'🇸🇬',cn:'新元',th:'ดอลลาร์สิงคโปร์',en:'SGD',country:'Singapore',items:[
+    {denom:'$20–5',buy:27.00,sell:27.30},{denom:'$50–100',buy:27.30,sell:27.55},{denom:'$1000',buy:27.25,sell:27.40}]},
+  {flag:'🇦🇺',cn:'澳元',th:'ดอลลาร์ออสเตรเลีย',en:'AUD',country:'Australia',items:[
+    {denom:'$5–20',buy:20.90,sell:21.20},{denom:'$50–100',buy:21.13,sell:21.30},{denom:'$500+',buy:21.20,sell:21.35}]},
+  {flag:'🇭🇰',cn:'港币',th:'ดอลลาร์ฮ่องกง',en:'HKD',country:'Hong Kong',items:[
+    {denom:'$20–50',buy:4.18,sell:4.21},{denom:'$100–500',buy:4.21,sell:4.22},{denom:'$1000',buy:4.215,sell:4.225}]},
+  {flag:'🇲🇾',cn:'马币',th:'ริงกิตมาเลเซีย',en:'MYR',country:'Malaysia',items:[
+    {denom:'5–20',buy:7.60,sell:7.72},{denom:'50–100',buy:7.68,sell:7.76},{denom:'500+',buy:7.70,sell:7.78}]},
+  {flag:'🇰🇷',cn:'韩元',th:'วอนเกาหลี',en:'KRW',country:'South Korea',items:[
+    {denom:'₩1k–5k',buy:0.0235,sell:0.0245},{denom:'₩10k',buy:0.024,sell:0.025},{denom:'₩50k',buy:0.0242,sell:0.0252}]}
 ];
 
-// ===== 渲染（桌面表格） =====
-const pageEl=document.getElementById('page'); const pi=document.getElementById('pageIndicator');
-function buildRows(){const list=[]; DATA.forEach((g,gi)=>g.items.forEach((it,si)=>list.push({gi,si,showHead:si===0}))); return list;}
-function drawTable(p){
-  const rows=buildRows(); const rpp=(Number(document.getElementById('rppNum').value)||3)*3;
-  const pages=[]; for(let i=0;i<rows.length;i+=rpp) pages.push(rows.slice(i,i+rpp));
-  if(p>=pages.length) p=pages.length-1; if(p<0) p=0; currentPage=p;
-  const cur=pages[p]; pageEl.innerHTML=''; let lastGi=-1;
-  cur.forEach((r)=>{
-    const g=DATA[r.gi],it=g.items[r.si];
-    if(r.gi!==lastGi){
+// ====== 商家信息（默认） ======
+let SHOP = {
+  on:false, pos:'rb', size:'medium',
+  nameCN:'智能交易所 · 曼谷', nameEN:'Intelligent Exchange · Bangkok',
+  addr:'', phone:'', note:'',
+  wechatId:'', lineId:'',
+  wechatQR:'', lineQR:''
+};
+
+// ====== 渲染表格 ======
+const pageEl = document.getElementById('page'); const pi = document.getElementById('pageIndicator');
+function buildRows(){ const list=[]; DATA.forEach((g,gi)=>g.items.forEach((it,si)=>list.push({gi,si,showHead:si===0}))); return list; }
+function setupEditable(scopeEl){
+  scopeEl.querySelectorAll('[contenteditable]').forEach(el=>{
+    el.addEventListener('blur',()=>{
+      if(!CAN_WRITE) return;
+      const row = el.closest('.row'); const gi=+row.dataset.gi; const si=+row.dataset.si;
+      const k = el.dataset.key;
+      if(k==='buy'||k==='sell'){
+        const v = sanitize(el.textContent); if(v==null) return;
+        DATA[gi].items[si][k] = v; el.textContent = S(v); touch();
+      }else if(k==='denom'){
+        DATA[gi].items[si].denom = (el.textContent||'').trim()||'—'; touch();
+      }else{
+        DATA[gi][k] = (el.textContent||'').trim(); touch(); render();
+      }
+    });
+  });
+}
+function drawPage(p){
+  const rows = pages[p];
+  pageEl.innerHTML='';
+  let last=-1;
+  rows.forEach((r, idx)=>{
+    const g=DATA[r.gi], it=g.items[r.si];
+    if(r.gi!==last){
       const head=document.createElement('div'); head.className='row'; head.dataset.gi=r.gi; head.dataset.si=-1;
-      head.innerHTML=`<div class="cell">${g.flag}</div><div class="cell"><b>${g.cn}</b> <span style="opacity:.85">${g.en}</span></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>`;
-      pageEl.appendChild(head); lastGi=r.gi;
+      head.innerHTML=`
+        <div class="cell"><span>${g.flag}</span></div>
+        <div class="cell"><b ${!locked?'contenteditable':''} data-key="cn">${g.cn}</b> <span style="opacity:.9">${g.en}</span></div>
+        <div class="cell"></div><div class="cell"></div><div class="cell"></div>`;
+      setupEditable(head); pageEl.appendChild(head); last=r.gi;
     }
     const row=document.createElement('div'); row.className='row'; row.dataset.gi=r.gi; row.dataset.si=r.si;
     row.innerHTML=`
       <div class="cell"></div>
       <div class="cell"></div>
-      <div class="cell"><div class="num denom">${it.denom}</div></div>
-      <div class="cell"><div class="num buy">${S(it.buy)}</div></div>
-      <div class="cell"><div class="num sell">${S(it.sell)}</div></div>`;
-    pageEl.appendChild(row);
+      <div class="cell"><div class="num denom" ${!locked?'contenteditable':''} data-key="denom">${it.denom}</div></div>
+      <div class="cell"><div class="num buy" ${!locked?'contenteditable':''} data-key="buy">${S(it.buy)}</div></div>
+      <div class="cell"><div class="num sell" ${!locked?'contenteditable':''} data-key="sell">${S(it.sell)}</div></div>`;
+    setupEditable(row); pageEl.appendChild(row);
   });
-  pi.textContent=`第 ${p+1} / ${pages.length} 页`;
-  return pages.length;
+}
+function render(){
+  const list=buildRows(); const RPP=(Number(document.getElementById('rppNum').value)||3)*3;
+  pages=[]; for(let i=0;i<list.length;i+=RPP) pages.push(list.slice(i,i+RPP));
+  if(pages.length===0) pages=[[]];
+  currentPage=Math.min(currentPage,pages.length-1);
+  drawPage(currentPage);
+  pi.textContent = `第 ${currentPage+1} / ${pages.length} 页`;
+  updateCycle();
 }
 
-// ===== 渲染（移动卡片） =====
-const mobile = document.getElementById('mobileCards');
-function drawMobileCards(){
-  mobile.innerHTML='';
-  DATA.forEach(g=>{
-    const card=document.createElement('div'); card.className='card';
-    card.innerHTML=`
-      <div class="ch"><div class="flag">${g.flag}</div><div class="code">${g.en}</div><div class="name">${g.cn}</div></div>
-      <div class="table3">
-        ${g.items.map(it=>`
-          <div class="cell3">
-            <div class="denom3">${it.denom}</div>
-            <div class="buy3">${S(it.buy)}</div>
-            <div class="sell3">${S(it.sell)}</div>
-          </div>
-        `).join('')}
-      </div>`;
-    mobile.appendChild(card);
-  });
-  const tip=document.createElement('div'); tip.className='mpi'; tip.textContent='向下滚动查看更多国家'; mobile.appendChild(tip);
+// ====== 轮播 ======
+function updateCycle(){
+  if(cycleTimer) clearInterval(cycleTimer); cycleTimer=null;
+  const sec = Number(document.getElementById('speed').value)||6;
+  const canPlay = !isPaused && sec>0 && pages.length>1;
+  document.getElementById('btn-cycle').textContent = canPlay ? '⏸️ 轮播暂停' : '▶️ 轮播播放';
+  if(canPlay){ cycleTimer = setInterval(()=>{ currentPage=(currentPage+1)%pages.length; drawPage(currentPage); pi.textContent=`第 ${currentPage+1} / ${pages.length} 页`; }, sec*1000); }
 }
 
-// ===== Controls =====
-document.getElementById('rppNum').addEventListener('change',()=>drawTable(currentPage));
-document.getElementById('btn-cycle').onclick=()=>{ isPaused=!isPaused; };
-document.getElementById('speed').addEventListener('input',e=>{ document.getElementById('speedNum').value=e.target.value; });
-document.getElementById('speedNum').addEventListener('change',e=>{ document.getElementById('speed').value=e.target.value; });
+// ====== 控件绑定 ======
+document.getElementById('rppNum').addEventListener('change',render);
+document.getElementById('speed').addEventListener('input',e=>{ document.getElementById('speedNum').value=e.target.value; updateCycle(); });
+document.getElementById('speedNum').addEventListener('change',e=>{ document.getElementById('speed').value=e.target.value; updateCycle(); });
+document.getElementById('btn-cycle').onclick=()=>{ isPaused=!isPaused; updateCycle(); };
+document.getElementById('btn-lock').onclick=()=>{ locked=!locked; document.getElementById('btn-lock').textContent=locked?'🔒 已锁定':'🔓 编辑中'; render(); };
 
-// ===== Cloud sync 默认开启 =====
+// ====== 本地 & 云同步 ======
+function touch(){ localStorage.setItem(STORE_KEY, JSON.stringify({data:DATA, shop:SHOP})); document.getElementById('updated').textContent=new Date().toLocaleString(); pushNow(); }
+
 function cloudEnable(on){
   if(on===cloudOn) return;
   if(on){
     try{
-      app=firebase.apps?.length?firebase.app():firebase.initializeApp(FB_CONFIG);
-      db=firebase.database();
-      ref=db.ref('exchange/cloud/v1/'+ROOM);
-      ref.on('value',snap=>{
+      app = firebase.apps?.length ? firebase.app() : firebase.initializeApp(FB_CONFIG);
+      db = firebase.database();
+      ref = db.ref('exchange/cloud/v1/'+ROOM);
+      ref.on('value', snap=>{
         const v=snap.val(); if(!v) return;
+        applying=true;
         if(v.data) DATA=v.data;
-        document.getElementById('updated').textContent=new Date(v.updated||Date.now()).toLocaleString();
-        drawTable(currentPage); drawMobileCards();
+        if(v.shop) SHOP=v.shop;
+        document.getElementById('updated').textContent = new Date(v.updated||Date.now()).toLocaleString();
+        render(); renderShop();
+        applying=false;
       });
-      cloudOn=true; document.getElementById('cloudState').textContent='☁️ 云同步：开';
-    }catch(e){ alert('连接 Firebase 失败'); }
+      cloudOn=true; document.getElementById('cloudState').textContent='☁️ 云同步：开'; pushNow();
+    }catch(e){ console.error(e); alert('连接 Firebase 失败，请检查配置'); }
   }else{
-    if(ref) ref.off(); cloudOn=false; document.getElementById('cloudState').textContent='☁️ 云同步：关';
+    if(ref) ref.off();
+    cloudOn=false; document.getElementById('cloudState').textContent='☁️ 云同步：关';
   }
 }
-function pushNow(){ if(!cloudOn || !ref || !CAN_WRITE) return; ref.set({ data: DATA, updated: Date.now() }); }
+function pushNow(){ if(!cloudOn || !ref || !CAN_WRITE) return; ref.set({ data: DATA, shop: SHOP, updated: Date.now() }); }
 
-// ===== 登录（禁用自动填充） =====
-const loginFloat=document.getElementById('loginFloat'); const loginDlg=document.getElementById('loginDlg');
+// ====== 登录（禁用自动填充） ======
+const loginFloat=document.getElementById('loginFloat');
+const loginDlg=document.getElementById('loginDlg');
 document.getElementById('btnCancel').onclick=()=> loginDlg.style.display='none';
 loginFloat.onclick=()=> loginDlg.style.display='flex';
 document.getElementById('btn-logout').onclick=async()=>{ try{ await firebase.auth().signOut(); alert('已退出'); location.reload(); }catch(e){} };
 document.getElementById('loginForm').addEventListener('submit', async (e)=>{
   e.preventDefault();
   try{
-    const acc=(document.getElementById('acc').value||'').trim()||'znjys';
-    const pwd=document.getElementById('pwd').value;
-    const email=acc+'@znjys.local';
-    auth=firebase.auth();
-    const r=await auth.signInWithEmailAndPassword(email,pwd);
-    const uid=r.user.uid;
-    const s=await firebase.database().ref('roles/'+uid+'/write').once('value');
-    CAN_WRITE=(s.val()===true);
-    if(!CAN_WRITE) alert('登录成功，但没有写入权限');
-    // 显示控制台
-    document.getElementById('controls').style.display='flex';
-    loginFloat.style.display='none';
+    const acc = (document.getElementById('acc').value||'').trim() || 'znjys';
+    const pwd = document.getElementById('pwd').value;
+    const email = acc+'@znjys.local';
+    if(!auth) auth = firebase.auth();
+    const r = await auth.signInWithEmailAndPassword(email, pwd);
+    const uid = r.user.uid;
+    const s = await firebase.database().ref('roles/'+uid+'/write').once('value');
+    CAN_WRITE = (s.val()===true);
+    if(!CAN_WRITE){ alert('登录成功，但没有写入权限'); }
+    afterLogin(r.user);
     loginDlg.style.display='none';
   }catch(err){ alert('登录失败：'+(err?.message||'')); }
 });
 
-// ===== Init =====
+function afterLogin(u){
+  document.getElementById('loginState').textContent = u?.email||'';
+  document.getElementById('controls').style.display='flex';
+  loginFloat.style.display='none';
+  render(); renderShop();
+}
+
+// 初始化认证监听（用于刷新 UI）
+function initAuth(){
+  auth = firebase.auth();
+  auth.onAuthStateChanged(u=>{
+    if(u){
+      document.getElementById('loginState').textContent = u.email||'';
+      document.getElementById('controls').style.display='flex';
+      loginFloat.style.display='none';
+      // 检查写权限
+      firebase.database().ref('roles/'+u.uid+'/write').once('value').then(s=>{ CAN_WRITE = (s.val()===true); });
+    }else{
+      CAN_WRITE=false; locked=true;
+      document.getElementById('controls').style.display='none';
+      if (new URLSearchParams(location.search).get('admin') === '1') loginFloat.style.display='flex';
+      render(); renderShop();
+    }
+  });
+}
+
+// ====== 商家信息：显示与编辑 ======
+const shopCard = document.getElementById('shopCard');
+function renderShop(){
+  shopCard.style.display = SHOP.on ? 'block' : 'none';
+  shopCard.classList.remove('small','medium','large','pos-lt','pos-rt','pos-lb','pos-rb');
+  shopCard.classList.add(SHOP.size||'medium', 'pos-'+(SHOP.pos||'rb'));
+  document.getElementById('sc-name').textContent = (SHOP.nameCN||'') + (SHOP.nameEN?(' · '+SHOP.nameEN):'');
+  document.getElementById('sc-addr').textContent = SHOP.addr||'';
+  document.getElementById('sc-phone').textContent = SHOP.phone||'';
+  document.getElementById('sc-note').textContent = SHOP.note||'';
+  if(SHOP.wechatQR){ document.getElementById('fig-wechat').style.display='block'; document.getElementById('sc-wechat').src=SHOP.wechatQR; }
+  else { document.getElementById('fig-wechat').style.display='none'; }
+  if(SHOP.lineQR){ document.getElementById('fig-line').style.display='block'; document.getElementById('sc-line').src=SHOP.lineQR; }
+  else { document.getElementById('fig-line').style.display='none'; }
+  document.getElementById('btn-shop-toggle').textContent = '商家信息：' + (SHOP.on?'开':'关');
+}
+
+// 打开编辑对话框
+const shopDlg = document.getElementById('shopDlg');
+document.getElementById('btn-shop-edit').onclick=()=>{
+  if(!CAN_WRITE){ alert('未登录或无写入权限'); return; }
+  // 填充表单
+  document.getElementById('f_on').value = SHOP.on?'true':'false';
+  document.getElementById('f_pos').value = SHOP.pos||'rb';
+  document.getElementById('f_size').value = SHOP.size||'medium';
+  document.getElementById('f_name_cn').value = SHOP.nameCN||'';
+  document.getElementById('f_name_en').value = SHOP.nameEN||'';
+  document.getElementById('f_addr').value = SHOP.addr||'';
+  document.getElementById('f_phone').value = SHOP.phone||'';
+  document.getElementById('f_note').value = SHOP.note||'';
+  document.getElementById('f_wechat_id').value = SHOP.wechatId||'';
+  document.getElementById('f_line_id').value = SHOP.lineId||'';
+  shopDlg.style.display='flex';
+};
+document.getElementById('btnShopCancel').onclick=()=> shopDlg.style.display='none';
+document.getElementById('btnShopSave').onclick=async()=>{
+  if(!CAN_WRITE){ alert('未登录或无写入权限'); return; }
+  SHOP.on = document.getElementById('f_on').value==='true';
+  SHOP.pos = document.getElementById('f_pos').value;
+  SHOP.size = document.getElementById('f_size').value;
+  SHOP.nameCN = document.getElementById('f_name_cn').value.trim();
+  SHOP.nameEN = document.getElementById('f_name_en').value.trim();
+  SHOP.addr = document.getElementById('f_addr').value.trim();
+  SHOP.phone = document.getElementById('f_phone').value.trim();
+  SHOP.note = document.getElementById('f_note').value.trim();
+  SHOP.wechatId = document.getElementById('f_wechat_id').value.trim();
+  SHOP.lineId = document.getElementById('f_line_id').value.trim();
+
+  // 读取二维码文件为 dataURL
+  const fWe = document.getElementById('f_wechat_qr').files[0];
+  const fLi = document.getElementById('f_line_qr').files[0];
+  const readAsDataURL = (file)=> new Promise((resolve)=>{ if(!file) return resolve(null); const r=new FileReader(); r.onload=()=>resolve(r.result); r.readAsDataURL(file); });
+  const [we,li] = await Promise.all([readAsDataURL(fWe), readAsDataURL(fLi)]);
+  if(we) SHOP.wechatQR = we;
+  if(li) SHOP.lineQR = li;
+
+  touch(); renderShop();
+  alert('已保存');
+  shopDlg.style.display='none';
+};
+
+document.getElementById('btn-shop-toggle').onclick=()=>{
+  if(!CAN_WRITE){ alert('未登录或无写入权限'); return; }
+  SHOP.on = !SHOP.on; renderShop(); touch();
+};
+
+// ====== 初始化 ======
 (function init(){
-  drawTable(0); drawMobileCards();
+  // 本地缓存
+  const saved = localStorage.getItem(STORE_KEY);
+  if(saved){ try{ const x=JSON.parse(saved); if(x.data) DATA=x.data; if(x.shop) SHOP=x.shop; }catch(e){} }
+  // UI
+  render(); renderShop();
+  // 云同步默认开启
   cloudEnable(true);
-  // 管理入口按钮（?admin=1）
-  if (new URLSearchParams(location.search).get('admin')==='1') document.getElementById('loginFloat').style.display='flex';
+  // 认证监听
+  initAuth();
+  // 时钟
   (function tick(){ const n=new Date(); document.getElementById('time').textContent=n.toLocaleTimeString(); document.getElementById('date').textContent=n.toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric',weekday:'long'}); setTimeout(tick,1000); })();
   // 键盘
   document.addEventListener('keydown',e=>{
-    if(e.key===' '){ e.preventDefault(); isPaused=!isPaused; }
+    if(e.key===' '){ e.preventDefault(); isPaused=!isPaused; updateCycle(); }
     if(e.key==='F'||e.key==='f'){ if(!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); }
-    if(e.key==='ArrowRight'){ currentPage++; drawTable(currentPage); }
-    if(e.key==='ArrowLeft'){ currentPage--; drawTable(currentPage); }
+    if(e.key==='ArrowRight'){ currentPage=(currentPage+1)%pages.length; drawPage(currentPage); pi.textContent=`第 ${currentPage+1} / ${pages.length} 页`; }
+    if(e.key==='ArrowLeft'){ currentPage=(currentPage-1+pages.length)%pages.length; drawPage(currentPage); pi.textContent=`第 ${currentPage+1} / ${pages.length} 页`; }
   });
 })();
 </script>
