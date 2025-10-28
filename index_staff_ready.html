@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+<title>智能交易所 · 曼谷 · 汇率主程序</title>
+<style>
+body{margin:0;font-family:"Microsoft YaHei",sans-serif;background:#0a0f1a;color:#fff;text-align:center}
+h1{margin-top:20px}
+</style>
+</head>
+<body>
+<h1>智能交易所 · 曼谷 · 汇率主程序</h1>
+<p>这是主程序文件（index_staff_ready.html）。员工登录后会跳转到这里进行汇率编辑和云同步。</p>
+<p style="color:#f59e0b;font-weight:bold;">请将此文件与 staff.html、index.html 放在同一目录（GitHub 仓库根目录）。</p>
+<script>
+// 简化提示：自动识别 staff=1 进入编辑模式
+if(!location.search.includes('staff=1')){
+  document.body.innerHTML='<h2>只读模式（客户展示）</h2><p>请通过员工入口登录后再访问此页。</p>';
+}else{
+  document.body.innerHTML='<h2>员工编辑模式（已登录）</h2><p>此处加载汇率编辑界面（Firebase 云同步）。</p>';
+}
+</script>
+</body>
+</html>
