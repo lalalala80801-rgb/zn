@@ -80,3 +80,36 @@
           <div style="padding:14px 16px; display:grid; gap:12px">
             <div id="editor-list" style="display:grid; gap:8px"></div>
             <div style="display:flex; gap:8px; flex-wrap:wrap">
+              <button class="btn primary" id="btn-save">保存</button>
+              <button class="btn" id="btn-reset">重置</button>
+              <button class="btn danger" id="btn-logout">退出</button>
+            </div>
+          </div>
+        </section>
+      </aside>
+    </div>
+  </main>
+<script>
+const ADMIN_ENTRY_MATCHERS=[u=>u.searchParams.get('admin')==='1',u=>u.hash==='#admin',u=>/\/staff\/?$/.test(u.pathname)];
+const DEFAULT_USER='staff',DEFAULT_PASS='znjys2025!';
+const DEFAULT_RATES=[{flag:'🇺🇸',name:'美元',code:'USD',country:'United States',buy:36.25,sell:36.55},{flag:'🇪🇺',name:'欧元',code:'EUR',country:'European Union',buy:38.8,sell:39.25},{flag:'🇬🇧',name:'英镑',code:'GBP',country:'United Kingdom',buy:45.1,sell:45.7},{flag:'🇨🇳',name:'人民币',code:'CNY',country:'China',buy:4.9,sell:5.05},{flag:'🇸🇬',name:'新加坡元',code:'SGD',country:'Singapore',buy:26.3,sell:26.75},{flag:'🇭🇰',name:'港币',code:'HKD',country:'Hong Kong',buy:4.58,sell:4.65},{flag:'🇰🇷',name:'韩元(₩10,000)',code:'KRW',country:'Korea',buy:268,sell:275},{flag:'🇯🇵',name:'日元(¥100)',code:'JPY',country:'Japan',buy:23.6,sell:24.2}];
+const LS={getRates(){try{return JSON.parse(localStorage.getItem('znjys_rates')||'null')}catch(e){return null}},setRates(v){localStorage.setItem('znjys_rates',JSON.stringify(v))},getAuth(){try{return JSON.parse(localStorage.getItem('znjys_auth')||'null')}catch(e){return null}},setAuth(v){localStorage.setItem('znjys_auth',JSON.stringify(v))},clearAuth(){localStorage.removeItem('znjys_auth')}};
+const staffSide=document.getElementById('staff-side'),loginCard=document.getElementById('login-card'),panelCard=document.getElementById('panel-card'),btnLogin=document.getElementById('btn-login'),btnLogout=document.getElementById('btn-logout'),btnSave=document.getElementById('btn-save'),btnReset=document.getElementById('btn-reset'),editorList=document.getElementById('editor-list'),ratesBody=document.getElementById('rates-body');
+function renderTable(data){ratesBody.innerHTML=data.map(r=>`<tr><td class="row"><span class="flag">${r.flag}</span><b>${r.name}</b></td><td><div>${r.country}</div><div class="code">${r.code}</div></td><td class="buy">${r.buy.toFixed(2)}</td><td class="sell">${r.sell.toFixed(2)}</td></tr>`).join('');}
+function renderEditor(data){editorList.innerHTML='';data.forEach((r,i)=>{let d=document.createElement('div');d.className='card';d.style.padding='10px';d.innerHTML=`<div class=row><span class=flag>${r.flag}</span><b>${r.name}</b><span class=code>${r.country}·${r.code}</span></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px"><label><div class=hint>买入</div><input class=in value=${r.buy} data-k=buy data-i=${i}></label><label><div class=hint>卖出</div><input class=in value=${r.sell} data-k=sell data-i=${i}></label></div>`;editorList.appendChild(d)});editorList.querySelectorAll('input').forEach(x=>x.oninput=e=>{let i=+e.target.dataset.i,k=e.target.dataset.k;state.rates[i][k]=parseFloat(e.target.value)||e.target.value;renderTable(state.rates)});}
+function adminEntryAllowed(){let u=new URL(location.href);return ADMIN_ENTRY_MATCHERS.some(fn=>fn(u));}
+function isAuthed(){let a=LS.getAuth();return a&&a.user&&a.expires>Date.now();}
+function login(u,p){if(u===DEFAULT_USER&&p===DEFAULT_PASS){LS.setAuth({user:u,expires:Date.now()+7*864e5});return true}return false}
+function logout(){LS.clearAuth();location.reload();}
+function showLogin(){staffSide.classList.remove('hidden');loginCard.classList.remove('hidden');panelCard.classList.add('hidden');}
+function showPanel(){staffSide.classList.remove('hidden');loginCard.classList.add('hidden');panelCard.classList.remove('hidden');}
+function hideStaff(){staffSide.classList.add('hidden');}
+const state={rates:LS.getRates()||DEFAULT_RATES.slice()};renderTable(state.rates);
+if(isAuthed()){showPanel();renderEditor(state.rates);}else if(adminEntryAllowed()){showLogin();}else hideStaff();
+btnLogin.onclick=()=>{if(login(document.getElementById('login-user').value,document.getElementById('login-pass').value)){showPanel();renderEditor(state.rates);}else alert('账号或密码错误');};
+btnLogout.onclick=logout;
+btnSave.onclick=()=>{LS.setRates(state.rates);alert('已保存');};
+btnReset.onclick=()=>{if(confirm('重置?')){state.rates=DEFAULT_RATES.slice();renderTable(state.rates);renderEditor(state.rates);LS.setRates(state.rates);}};
+</script>
+</body>
+</html>
